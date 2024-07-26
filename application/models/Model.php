@@ -591,7 +591,12 @@ function login($email,$password)
         $query = $this->db->get($table);
         return $query->result_array();
     }
-    
+    function readRequeteOne($requete){
+      $query=$this->db->query($requete);
+      if ($query) {
+        return $query->row_array();
+      }
+    }
     function getsomme($table, $column=array(), $cond=array(),$cond2=array())
     {
        $this->db->select($column);

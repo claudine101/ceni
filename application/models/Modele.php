@@ -6,12 +6,30 @@ class Modele extends CI_Model{
   public function __construct()
   {
     parent::__construct();
-    //Codeigniter : Write Less Do More
+    $this->load->library('encryption');
   }
 
+  public function encrypt_vote($vote_data) {
+    $encrypted_vote = $this->encryption->encrypt($vote_data);
+    return $encrypted_vote;
+}
+public function get_all_candidates() {
+  $query = $this->db->get('candidats');
+  return $query->result_array();
+}
+public function decrypt_vote($encrypted_vote) {
+    $decrypted_vote = $this->encryption->decrypt($encrypted_vote);
+    return $decrypted_vote;
+}
   public function create($table,$data){
     $sql=$this->db->insert($table,$data);
     return $sql ;
+  }
+  function readRequeteOne($requete){
+    $query=$this->db->query($requete);
+    if ($query) {
+      return $query->row_array();
+    }
   }
   //pacifique
   function vider($requete)

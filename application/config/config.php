@@ -327,7 +327,13 @@ $config['cache_query_string'] = FALSE;
 | https://codeigniter.com/user_guide/libraries/encryption.html
 |
 */
-$config['encryption_key'] = '';
+// $config['encryption_key'] = 'AbCdEfGhIjKlMnOpQrStUvWxYz012345';
+$config['encryption_key'] = 'AbCdEfGhIjKlMnOpQrStUvWxYz012345';
+$config['encryption'] = array(
+    'cipher' => 'aes-256',
+    'mode' => 'ctr'
+);
+
 
 /*
 |--------------------------------------------------------------------------
@@ -524,3 +530,7 @@ $config['rewrite_short_tags'] = FALSE;
 | Array:		array('10.0.1.200', '192.168.5.0/24')
 */
 $config['proxy_ips'] = '';
+
+// application/config/config.php
+// $config['encryption_key'] = 'your-encryption-key-here';
+

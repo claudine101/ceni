@@ -73,6 +73,8 @@
 <script src="<?=base_url('')?>plugins/js/prism.js"></script>
 <script src="<?=base_url('')?>plugins/js/OverlayScrollbars.min.js"></script>
 <script src="<?=base_url('')?>plugins/js/main.js"></script>
+<script src="<?= base_url()?>assets/js/dashboard/statistics-page.js"></script>
+
 <!--  -->
 
 
