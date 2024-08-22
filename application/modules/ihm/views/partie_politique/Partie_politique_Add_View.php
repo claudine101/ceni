@@ -40,9 +40,9 @@
                  <div class="row">
                   <div class="col-md-6">
                     <label for="FName">Description</label>
-                    <input type="text" name="DESCRPTION" autocomplete="off" id="DESCRPTION" value="<?= set_value('DESCRPTION') ?>"  class="form-control">
+                    <input type="text" name="DESCRIPTION" autocomplete="off" id="DESCRIPTION" value="<?= set_value('DESCRIPTION') ?>"  class="form-control">
                     
-                    <?php echo form_error('DESCRPTION', '<div class="text-danger">', '</div>'); ?> 
+                    <?php echo form_error('DESCRIPTION', '<div class="text-danger">', '</div>'); ?> 
 
 
                     <div class="col-md-6" style="margin-top:31px;">

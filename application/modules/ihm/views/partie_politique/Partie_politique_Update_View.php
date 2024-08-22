@@ -42,9 +42,9 @@
 
                     <input type="hidden" class="form-control" name="ID_PARTIE_POLITIQUE" value="<?=$data['ID_PARTIE_POLITIQUE']?>" >
                     <label for="FName">Description</label>
-                    <input type="text" name="DESCRPTION" value="<?=$data['DESCRPTION'] ?>"  id="DESCRPTION" class="form-control">
+                    <input type="text" name="DESCRIPTION" value="<?=$data['DESCRIPTION'] ?>"  id="DESCRIPTION" class="form-control">
 
-                    <?php echo form_error('DESCRPTION', '<div class="text-danger">', '</div>'); ?> 
+                    <?php echo form_error('DESCRIPTION', '<div class="text-danger">', '</div>'); ?> 
 
                   </div>
 

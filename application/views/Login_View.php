@@ -4,10 +4,11 @@
 <!------ Include the above in your HEAD tag ---------->
 
 <!DOCTYPE html>
-<html>
+<html >
     
 <head>
-  <title>PSR || Login</title>
+  <title>VOTE || Login</title>
+  <link rel="icon" type="image/jpg" href="<?=base_url()?>upload/logos.png"/>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.1/css/all.css" integrity="sha384-gfdkjb5BdAXd+lj+gudLWI+BXq4IuLW5IT+brZEZsLFm++aCMlF1V92rMkPaX4PP" crossorigin="anonymous">
@@ -24,16 +25,29 @@
   }
 </style>
 <!--Coded with love by Mutiullah Samim-->
-<body>
-
-
-
+<body style="background-image: url(<?=base_url()?>upload/Artboards.png?>); ">
   <div class="container-fluid h-100">
     <div class="d-flex justify-content-center h-100">
-      <div class="user_card">
+      <div class="user_card" style="
+      
+      height: 400px;
+						width: 350px;
+						margin-top: auto;
+						margin-bottom: auto;
+						background: #cacfe9;
+						position: relative;
+						display: flex;
+						justify-content: center;
+						flex-direction: column;
+						padding: 10px;
+						box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+						-webkit-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+						-moz-box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+						border-radius: 5px;
+      ">
         <div class="d-flex justify-content-center h-100">
           <div class="brand_logo_container">
-            <img src="<?=base_url()?>uploads/images.jfif" class="brand_logo" alt=".">
+            <img src="<?=base_url()?>upload/logos.png" class="brand_logo" alt=".">
           </div>
         </div>
         <div class="d-flex justify-content-center form_container">
@@ -41,25 +55,34 @@
             <?=$message?>
             <div class="input-group mb-3">
               <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-user"></i></span>
+                <span class="input-group-text" style="background: #434d8b !important;
+						color: white !important;
+						border: 0 !important;
+						border-radius: 0.25rem 0 0 0.25rem !important;"><i class="fas fa-user"></i></span>
               </div>
 
               <input type="text" name="USERNAME" id="USERNAME" class="form-control input_user" value="" placeholder="Nom d'utilisateur" required="required" style="font-size: 13px">
             </div>
             <div class="input-group mb-2">
               <div class="input-group-append">
-                <span class="input-group-text"><i class="fas fa-key"></i></span>
+                <span class="input-group-text" style="background: #434d8b !important;
+						color: white !important;
+						border: 0 !important;
+						border-radius: 0.25rem 0 0 0.25rem !important;"><i class="fas fa-key"></i></span>
               </div>
               <input type="password" name="PASSWORD" id="PASSWORD"  placeholder="Mot de passe" required="required" class="form-control input_pass" style="font-size: 13px">
             </div>
             <div class="form-group">
               <div class="custom-control custom-checkbox">
-                <input type="checkbox" class="custom-control-input" id="customControlInline" checked>
-                <label class="custom-control-label" for="customControlInline" style="font-size: 12px;color: #fff">Se souvenir de moi</label>
+                
               </div>
             </div>
               <div class="d-flex justify-content-center mt-3 login_container">
-          <button type="" name="button" class="btn login_btn" onclick="sumbmitForm()">Connexion</button>
+          <button type="" name="button" class="btn login_btn " style="
+          width: 100%;
+						background: #434d8b !important;
+						color: white !important
+            " onclick="sumbmitForm()">Connexion</button>
            </div>
           </form>
         </div>

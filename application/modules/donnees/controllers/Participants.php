@@ -47,31 +47,8 @@ class  Candidats extends CI_Controller
         $critere_poste = !empty($ID_POSTE) ? "  AND po.ID_POSTE=".$ID_POSTE." ":"";
         $critere_parti = !empty($ID_PARTIE_POLITIQUE) ? "  AND pa.ID_PARTIE_POLITIQUE=".$ID_PARTIE_POLITIQUE." ":"";
        
-		$COLLINE_ID = $this->input->post('COLLINE_ID');
-	    $ZONE_ID = $this->input->post('ZONE_ID'); 
-		$COMMUNE_ID = $this->input->post('COMMUNE_ID');
-	    $PROVINCE_ID = $this->input->post('PROVINCE_ID'); 
-
-		$critere_local = "";
-
-		if(!empty($PROVINCE_ID)){
-			$critere_local .="  AND pro.PROVINCE_ID=".$PROVINCE_ID." " ;
-		}
-		if(!empty($COMMUNE_ID)){
-			$critere_local .="  AND co.COMMUNE_ID=".$COMMUNE_ID." ";
-			
-		}
-		if(!empty($ZONE_ID)){
-			$critere_local .="  AND zo.ZONE_ID=".$ZONE_ID." ";
-			
-		}
-		if(!empty($COLLINE_ID)){
-			$critere_local .= "  AND col.COLLINE_ID=".$COLLINE_ID." ";
-			
-		}
-
-		$query_principal = 'SELECT col.COLLINE_ID,col.COLLINE_NAME,  zo.ZONE_ID ,zo.ZONE_NAME, co.COMMUNE_ID, co.COMMUNE_NAME,pro.PROVINCE_ID  ,pro.PROVINCE_NAME,ca.* ,po.ID_POSTE,po.DESCRIPTION as poste ,pa.ID_PARTIE_POLITIQUE,pa.DESCRIPTION as parti FROM participants ca JOIN syst_collines col ON  ca.ID_COLLINE=col.COLLINE_ID   JOIN syst_zones zo ON col.ZONE_ID=zo.ZONE_ID  JOIN syst_communes co ON zo.COMMUNE_ID=co.COMMUNE_ID JOIN syst_provinces pro ON
-		 pro.PROVINCE_ID=co.PROVINCE_ID JOIN postes po ON po.ID_POSTE=ca.ID_POSTE JOIN partie_politiques pa ON pa.ID_PARTIE_POLITIQUE=ca.ID_PARTIE_POLITIQUE  WHERE  IS_CANDIDAT=1'. $critere_poste . ' '. $critere_parti . ' '.$critere_local;
+		$query_principal = 'SELECT col.COLLINE_ID,col.COLLINE_NAME,  zo.ZONE_ID ,zo.ZONE_NAME, co.COMMUNE_ID, co.COMMUNE_NAME,pro.PROVINCE_ID  ,pro.PROVINCE_NAME,ca.* ,po.ID_POSTE,po.DESCRIPTION as poste ,pa.ID_PARTIE_POLITIQUE,pa.DESCRIPTION as parti FROM candidats ca JOIN syst_collines col ON  ca.ID_COLLINE_CANDIDAT=col.COLLINE_ID   JOIN syst_zones zo ON col.ZONE_ID=zo.ZONE_ID  JOIN syst_communes co ON zo.COMMUNE_ID=co.COMMUNE_ID JOIN syst_provinces pro ON
+		 pro.PROVINCE_ID=co.PROVINCE_ID JOIN postes po ON po.ID_POSTE=ca.ID_POSTE JOIN partie_politiques pa ON pa.ID_PARTIE_POLITIQUE=ca.ID_PARTIE_POLITIQUE  WHERE 1'. $critere_poste . ' '. $critere_parti . ' ';
 		$var_search = !empty($_POST['search']['value']) ? $_POST['search']['value'] : null;
 		$var_search=str_replace("'", "\'", $var_search);
 		$limit = 'LIMIT 0,10';
@@ -82,11 +59,11 @@ class  Candidats extends CI_Controller
 
 		$order_by = '';
 		
-		$order_column = array('ID_PARTICIPANT','NOM', 'PRENOM','ADRESE','NUMERO_CNI', 'LIEU_NAISSANCE', 'IS_ACTIVE');
+		$order_column = array('ID_CANDIDAT','NOM_CANDIDAT', 'PRENOM_CANDIDAT','ADRESE_CANDIDAT','NUMERO_CNI_CANDIDAT', 'LIEU_NAISSANCE_CANDIDAT', 'IS_ACTIVE_CANDIDAT');
 
-		$order_by = isset($_POST['order']) ? 'ORDER BY ' . $order_column[$_POST['order']['0']['column']] . '  ' . $_POST['order']['0']['dir'] : ' ORDER BY NOM DESC';
+		$order_by = isset($_POST['order']) ? 'ORDER BY ' . $order_column[$_POST['order']['0']['column']] . '  ' . $_POST['order']['0']['dir'] : ' ORDER BY NOM_CANDIDAT DESC';
 
-		$search = !empty($_POST['search']['value']) ? ("AND NOM LIKE '%$var_search%'") : '';
+		$search = !empty($_POST['search']['value']) ? ("AND NOM_CANDIDAT LIKE '%$var_search%'") : '';
 
 		$critaire = '';
 
@@ -106,21 +83,21 @@ class  Candidats extends CI_Controller
 			';
 
 			$option .= "<li><a hre='#' data-toggle='modal'
-			data-target='#mydelete" . $row->ID_PARTICIPANT. "'><font color='red'>&nbsp;&nbsp;Supprimer</font></a></li>";
-			$option .= "<li><a  id='".$row->NOM."'  title='".$row->NOM."'  onclick='voter(".$row->ID_PARTICIPANT.",this.title,this.id)' ><font color='green'>&nbsp;&nbsp;Voter</font></a></li>";
-			$option .= "<li><a class='btn-md' href='" . base_url('donnees/Candidats/getOne/' . $row->ID_PARTICIPANT  ) . "'><label class='text-info'>&nbsp;&nbsp;Modifier</label></a></li>";
+			data-target='#mydelete" . $row->ID_CANDIDAT   . "'><font color='red'>&nbsp;&nbsp;Supprimer</font></a></li>";
+			$option .= "<li><a  id='".$row->NOM_CANDIDAT."'  title='".$row->NOM_CANDIDAT."'  onclick='voter(".$row->ID_CANDIDAT.",this.title,this.id)' ><font color='green'>&nbsp;&nbsp;Voter</font></a></li>";
+			$option .= "<li><a class='btn-md' href='" . base_url('donnees/Candidats/getOne/' . $row->ID_CANDIDAT  ) . "'><label class='text-info'>&nbsp;&nbsp;Modifier</label></a></li>";
 			$option .= " </ul>
 			</div>
-			<div class='modal fade' id='mydelete" .  $row->ID_PARTICIPANT. "'>
+			<div class='modal fade' id='mydelete" .  $row->ID_CANDIDAT   . "'>
 			<div class='modal-dialog'>
 			<div class='modal-content'>
 
 			<div class='modal-body'>
-			<center><h5><strong>Voulez-vous supprimer?</strong> <br><b style='background-color:prink;color:green;'><i>" . $row->NOM . "   ".$row->PRENOM."</i></b></h5></center>
+			<center><h5><strong>Voulez-vous supprimer?</strong> <br><b style='background-color:prink;color:green;'><i>" . $row->NOM_CANDIDAT . "   ".$row->PRENOM_CANDIDAT."</i></b></h5></center>
 			</div>
 
 			<div class='modal-footer'>
-			<a class='btn btn-danger btn-md' href='" . base_url('donnees/Candidats/delete/' . $row->ID_PARTICIPANT  ) . "'>Supprimer</a>
+			<a class='btn btn-danger btn-md' href='" . base_url('donnees/Candidats/delete/' . $row->ID_CANDIDAT  ) . "'>Supprimer</a>
 			<button class='btn btn-primary btn-md' data-dismiss='modal'>Quitter</button>
 			</div>
 
@@ -130,17 +107,17 @@ class  Candidats extends CI_Controller
 	
 			$sub_array = array();
 			$u=++$u;
-			$source = !empty($row->PHOTO) ? $row->PHOTO : "https://app.mediabox.bi/wasiliEate/uploads/personne.png";
+			$source = !empty($row->PHOTO_CANDIDAT) ? $row->PHOTO_CANDIDAT : "https://app.mediabox.bi/wasiliEate/uploads/personne.png";
 			
 			$sub_array[]=$u;
-			$sub_array[] = '<table> <tbody><tr><td><a href="' . $source . '" target="_blank" ><img alt="Avtar" style="border-radius:50%;width:30px;height:30px" src="' . $source . '"></a></td><td>' . $row->NOM . ' ' . $row->PRENOM . '</td></tr></tbody></table></a>';
-			$sub_array[] = '<table> <tbody><tr><td>' . $row->TELEPHONE . ' ' . $row->EMAIL . '</td></tr></tbody></table></a>';
-            $sub_array[] = $row->NUMERO_CNI;
-			$sub_array[] = $this->notifications->ago($row->DATE_NAISSANCE, date('Y-m-d'));
-            $sub_array[] = $row->ID_SEXE;
+			$sub_array[] = '<table> <tbody><tr><td><a href="' . $source . '" target="_blank" ><img alt="Avtar" style="border-radius:50%;width:30px;height:30px" src="' . $source . '"></a></td><td>' . $row->NOM_CANDIDAT . ' ' . $row->PRENOM_CANDIDAT . '</td></tr></tbody></table></a>';
+			$sub_array[] = '<table> <tbody><tr><td>' . $row->TELEPHONE_CANDIDAT . ' ' . $row->EMAIL_CANDIDAT . '</td></tr></tbody></table></a>';
+            $sub_array[] = $row->NUMERO_CNI_CANDIDAT;
+			$sub_array[] = $this->notifications->ago($row->DATE_NAISSANCE_CANDIDAT, date('Y-m-d'));
+            $sub_array[] = $row->SEXE_CANDIDAT;
             $sub_array[] = $row->poste;
             $sub_array[] = $row->parti;
-			$sub_array[] = $this->get_icon($row->IS_ACTIVE,$row);
+			$sub_array[] = $this->get_icon($row->IS_ACTIVE_CANDIDAT,$row);
 			$sub_array[] = $row->COLLINE_NAME.'-'.$row->ZONE_NAME.'-'.$row->COMMUNE_NAME.'-'.$row->PROVINCE_NAME;
 			$sub_array[] = $option;
 			$data[] = $sub_array;
@@ -155,22 +132,22 @@ class  Candidats extends CI_Controller
 	}
 	function get_icon($statut, $row)
 	{
-	  $html = ($statut == 1) ? "<a class='btn btn-success btn-sm' id='".$row->NOM."'  title='".$row->NOM."'  onclick='desactiver(".$row->ID_PARTICIPANT.",this.title,this.id)' style='float:right' ><span class = 'fa fa-check'></span></a>" : "<a class = 'btn btn-danger btn-sm' id='".$row->NOM."'  title='".$row->NOM."'  onclick='activer(".$row->ID_PARTICIPANT.",this.title,this.id)' style='float:right'><span class = 'fa fa-ban' ></span></a>" ;
+	  $html = ($statut == 1) ? "<a class='btn btn-success btn-sm' id='".$row->NOM_CANDIDAT."'  title='".$row->NOM_CANDIDAT."'  onclick='desactiver(".$row->ID_CANDIDAT.",this.title,this.id)' style='float:right' ><span class = 'fa fa-check'></span></a>" : "<a class = 'btn btn-danger btn-sm' id='".$row->NOM_CANDIDAT."'  title='".$row->NOM_CANDIDAT."'  onclick='activer(".$row->ID_CANDIDAT.",this.title,this.id)' style='float:right'><span class = 'fa fa-ban' ></span></a>" ;
 	  return $html;
 	}
 	function activer($id)
     {
-          $this->Modele->update('participants',array('ID_PARTICIPANT'=>$id),array('IS_ACTIVE'=>1));
+          $this->Modele->update('candidats',array('ID_CANDIDAT'=>$id),array('IS_ACTIVE_CANDIDAT'=>1));
        print_r(json_encode(1));
     }
     function desactiver($id)
     {
-          $this->Modele->update('participants',array('ID_PARTICIPANT'=>$id),array('IS_ACTIVE'=>0));
+          $this->Modele->update('candidats',array('ID_CANDIDAT'=>$id),array('IS_ACTIVE_CANDIDAT'=>0));
        print_r(json_encode(1));
     }
 	function voter($id)
     {
-          $this->Modele->update('participants',array('ID_PARTICIPANT'=>$id),array('IS_ACTIVE'=>0));
+          $this->Modele->update('candidats',array('ID_CANDIDAT'=>$id),array('IS_ACTIVE_CANDIDAT'=>0));
        print_r(json_encode(1));
     }
 	function ajouter()
@@ -179,8 +156,6 @@ class  Candidats extends CI_Controller
         $data['provinces'] = $this->Modele->getRequete('SELECT * FROM syst_provinces WHERE 1 order by PROVINCE_NAME ASC');
         $data['postes'] = $this->Modele->getRequete('SELECT * FROM postes WHERE 1 order by DESCRIPTION ASC');
         $data['partis'] = $this->Modele->getRequete('SELECT * FROM partie_politiques WHERE 1 order by DESCRIPTION ASC');
-        $data['sexe'] = $this->Modele->getRequete('SELECT * FROM sexes WHERE 1 order by DESCRIPTION ASC');
-
 		
 		$this->load->view('candidats/Candidats_Add_View', $data);
 	}
@@ -196,17 +171,17 @@ class  Candidats extends CI_Controller
      }
 	function add()
 	{
-		$this->form_validation->set_rules('NOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('PRENOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('TELEPHONE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('EMAIL', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('NUMERO_CNI', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('DATE_NAISSANCE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('NOM_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('PRENOM_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('TELEPHONE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('EMAIL_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('NUMERO_CNI_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('DATE_NAISSANCE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		
-		$this->form_validation->set_rules('ID_SEXE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('SEXE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		$this->form_validation->set_rules('ID_POSTE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		$this->form_validation->set_rules('ID_PARTIE_POLITIQUE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('ID_COLLINE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('ID_COLLINE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		
         if ($this->form_validation->run() == FALSE) {
 			$this->ajouter();
@@ -258,33 +233,21 @@ class  Candidats extends CI_Controller
 				//echo "<img src='".$path."' >";
 				
 			}
-			$data_users = array(
-				'USERNAME' => $this->input->post('EMAIL'),
-				'PASSWORD' => md5($this->input->post('TELEPHONE')),
-				'ID_PROFIL' => 2,
-			);
-			$tableusers = 'utilisateurs';
-
-			$idUsers = $this->Modele->insert_last_id($tableusers, $data_users);
 
 			$data_insert = array(
-				'NOM' => $this->input->post('NOM'),
-				'PRENOM' => $this->input->post('PRENOM'),
-				'TELEPHONE' => $this->input->post('TELEPHONE'),
-				'EMAIL' => $this->input->post('EMAIL'),
-				'NUMERO_CNI' => $this->input->post('NUMERO_CNI'),
-				'DATE_NAISSANCE' => $this->input->post('DATE_NAISSANCE'),
-				'ID_SEXE' => $this->input->post('ID_SEXE'),
-				'PHOTO' => $pathfile,
+				'NOM_CANDIDAT' => $this->input->post('NOM_CANDIDAT'),
+				'PRENOM_CANDIDAT' => $this->input->post('PRENOM_CANDIDAT'),
+				'TELEPHONE_CANDIDAT' => $this->input->post('TELEPHONE_CANDIDAT'),
+				'EMAIL_CANDIDAT' => $this->input->post('EMAIL_CANDIDAT'),
+				'NUMERO_CNI_CANDIDAT' => $this->input->post('NUMERO_CNI_CANDIDAT'),
+				'DATE_NAISSANCE_CANDIDAT' => $this->input->post('DATE_NAISSANCE_CANDIDAT'),
+				'SEXE_CANDIDAT' => $this->input->post('SEXE_CANDIDAT'),
+				'PHOTO_CANDIDAT' => $pathfile,
 				'ID_POSTE' => $this->input->post('ID_POSTE'),
 				'ID_PARTIE_POLITIQUE' => $this->input->post('ID_PARTIE_POLITIQUE'),
-				'ID_COLLINE' => $this->input->post('ID_COLLINE'),
-				'IS_CANDIDAT'=>1,
-				'ID_UTILISATEUR'=>$idUsers
+				'ID_COLLINE_CANDIDAT' => $this->input->post('ID_COLLINE_CANDIDAT'),
 			);
-           
-
-			$table = 'Participants';
+			$table = 'candidats';
 			$this->Modele->create($table, $data_insert);
 			$data['message'] = '<div class="alert alert-success text-center" id="message">' . "L'ajout se faite avec succès" . '</div>';
 			$this->session->set_flashdata($data);
@@ -294,13 +257,11 @@ class  Candidats extends CI_Controller
 
 	function getOne($id)
 	{
-		$candidats = $this->Modele->getOne('participants', array('ID_PARTICIPANT' => $id));
-		$colline = $this->Modele->getOne('syst_collines', array('COLLINE_ID' =>$candidats['ID_COLLINE']));
+		$candidats = $this->Modele->getOne('candidats', array('ID_CANDIDAT ' => $id));
+		$colline = $this->Modele->getOne('syst_collines', array('COLLINE_ID' =>$candidats['ID_COLLINE_CANDIDAT']));
 		$zone = $this->Modele->getOne('syst_zones', array('ZONE_ID' => $colline['ZONE_ID']));
 		$commun = $this->Modele->getOne('syst_communes', array('COMMUNE_ID' => $zone['COMMUNE_ID']));
 		$prov = $this->Modele->getOne('syst_provinces', array('PROVINCE_ID' => $commun['PROVINCE_ID']));
-		$sexe = $this->Modele->getOne('sexes', array('ID_SEXE' => $candidats['ID_SEXE']));
-
 		
 		$data['collines'] = $this->Model->getRequete('SELECT COLLINE_ID,COLLINE_NAME FROM syst_collines WHERE ZONE_ID=' . $colline['ZONE_ID'] . ' ORDER BY COLLINE_NAME ASC');
 		$data['zones'] = $this->Model->getRequete('SELECT ZONE_ID,ZONE_NAME FROM syst_zones WHERE COMMUNE_ID=' . $commun['COMMUNE_ID'] . ' ORDER BY ZONE_NAME ASC');
@@ -309,15 +270,12 @@ class  Candidats extends CI_Controller
         $data['provinces'] = $this->Modele->getRequete('SELECT * FROM syst_provinces WHERE 1 order by PROVINCE_NAME ASC');
 		$data['postes'] = $this->Modele->getRequete('SELECT * FROM postes WHERE 1 order by DESCRIPTION ASC');
         $data['partis'] = $this->Modele->getRequete('SELECT * FROM partie_politiques WHERE 1 order by DESCRIPTION ASC');
-        $data['sexe'] = $this->Modele->getRequete('SELECT * FROM sexes WHERE 1 order by DESCRIPTION ASC');
 		
 		$data['data'] = $candidats;
 		$data['selectColl'] = $colline;
 		$data['selectZon'] = $zone;
 		$data['selectComm'] = $commun;
 		$data['selectProv'] = $prov;
-		$data['selectSexe'] = $prov;
-
 
 		$data['title'] = 'Modification du  candidats';
 		$this->load->view('candidats/Candidats_Update_View', $data);
@@ -325,19 +283,19 @@ class  Candidats extends CI_Controller
 
 	function update()
 	{
-		$this->form_validation->set_rules('NOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('PRENOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('TELEPHONE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('EMAIL', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('NUMERO_CNI', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('DATE_NAISSANCE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('NOM_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('PRENOM_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('TELEPHONE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('EMAIL_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('NUMERO_CNI_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('DATE_NAISSANCE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		
-		$this->form_validation->set_rules('ID_SEXE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('SEXE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		$this->form_validation->set_rules('ID_POSTE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		$this->form_validation->set_rules('ID_PARTIE_POLITIQUE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		$this->form_validation->set_rules('ID_COLLINE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('ID_COLLINE_CANDIDAT', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		
-		$id = $this->input->post('ID_PARTICIPANT');
+		$id = $this->input->post('ID_CANDIDAT');
 //  print $id
 //  exit();
 		if ($this->form_validation->run() == FALSE) {
@@ -367,38 +325,38 @@ class  Candidats extends CI_Controller
 			}
 
 
-			$id = $this->input->post('ID_PARTICIPANT');
+			$id = $this->input->post('ID_CANDIDAT');
 			if(!empty($_FILES['PHOTO']['name'])) {
 				$data = array(
-					'NOM' => $this->input->post('NOM'),
-					'PRENOM' => $this->input->post('PRENOM'),
-					'TELEPHONE' => $this->input->post('TELEPHONE'),
-					'EMAIL' => $this->input->post('EMAIL'),
-					'NUMERO_CNI' => $this->input->post('NUMERO_CNI'),
-					'DATE_NAISSANCE' => $this->input->post('DATE_NAISSANCE'),
-					'ID_SEXE' => $this->input->post('ID_SEXE'),
-					'PHOTO' => $pathfile,
+					'NOM_CANDIDAT' => $this->input->post('NOM_CANDIDAT'),
+					'PRENOM_CANDIDAT' => $this->input->post('PRENOM_CANDIDAT'),
+					'TELEPHONE_CANDIDAT' => $this->input->post('TELEPHONE_CANDIDAT'),
+					'EMAIL_CANDIDAT' => $this->input->post('EMAIL_CANDIDAT'),
+					'NUMERO_CNI_CANDIDAT' => $this->input->post('NUMERO_CNI_CANDIDAT'),
+					'DATE_NAISSANCE_CANDIDAT' => $this->input->post('DATE_NAISSANCE_CANDIDAT'),
+					'SEXE_CANDIDAT' => $this->input->post('SEXE_CANDIDAT'),
+					'PHOTO_CANDIDAT' => $pathfile,
 					'ID_POSTE' => $this->input->post('ID_POSTE'),
 					'ID_PARTIE_POLITIQUE' => $this->input->post('ID_PARTIE_POLITIQUE'),
-					'ID_COLLINE' => $this->input->post('ID_COLLINE'),
+					'ID_COLLINE_CANDIDAT' => $this->input->post('ID_COLLINE_CANDIDAT'),
 				);
 			}
 			else{
 				$data = array(
-					'NOM' => $this->input->post('NOM'),
-					'PRENOM' => $this->input->post('PRENOM'),
-					'TELEPHONE' => $this->input->post('TELEPHONE'),
-					'EMAIL' => $this->input->post('EMAIL'),
-					'NUMERO_CNI' => $this->input->post('NUMERO_CNI'),
-					'DATE_NAISSANCE' => $this->input->post('DATE_NAISSANCE'),
-					'ID_SEXE' => $this->input->post('ID_SEXE'),
+					'NOM_CANDIDAT' => $this->input->post('NOM_CANDIDAT'),
+					'PRENOM_CANDIDAT' => $this->input->post('PRENOM_CANDIDAT'),
+					'TELEPHONE_CANDIDAT' => $this->input->post('TELEPHONE_CANDIDAT'),
+					'EMAIL_CANDIDAT' => $this->input->post('EMAIL_CANDIDAT'),
+					'NUMERO_CNI_CANDIDAT' => $this->input->post('NUMERO_CNI_CANDIDAT'),
+					'DATE_NAISSANCE_CANDIDAT' => $this->input->post('DATE_NAISSANCE_CANDIDAT'),
+					'SEXE_CANDIDAT' => $this->input->post('SEXE_CANDIDAT'),
 					'ID_POSTE' => $this->input->post('ID_POSTE'),
 					'ID_PARTIE_POLITIQUE' => $this->input->post('ID_PARTIE_POLITIQUE'),
-					'ID_COLLINE' => $this->input->post('ID_COLLINE'),
+					'ID_COLLINE_CANDIDAT' => $this->input->post('ID_COLLINE_CANDIDAT'),
 				);
 			}
 			
-			$this->Modele->update('participants', array('ID_PARTICIPANT' => $id), $data);
+			$this->Modele->update('candidats', array('ID_CANDIDAT' => $id), $data);
 			$datas['message'] = '<div class="alert alert-success text-center" id="message">La modification de la candidature a été effectuée avec succès.</div>';
 			$this->session->set_flashdata($datas);
 			redirect(base_url('donnees/Candidats/'));
@@ -407,25 +365,34 @@ class  Candidats extends CI_Controller
 
 	function delete()
 	{
-		$table = "participants";
-		$table_votes = "votes";
-		$table_users = "utilisateurs";
-		$users = $this->Modele->getOne('participants', array('ID_PARTICIPANT' => $this->uri->segment(4)));
-		
-		$criteres['ID_PARTICIPANT'] = $this->uri->segment(4);
-		$criteres_votes['ID_CANDIDAT'] = $this->uri->segment(4);
-		$criteres_user['ID_UTILISATEUR'] = $users['ID_UTILISATEUR'];
-
+		$table = "candidats";
+		$criteres['ID_CANDIDAT'] = $this->uri->segment(4);
 		$data['rows'] = $this->Modele->getOne($table, $criteres);
-
 		$this->Modele->delete($table, $criteres);
-		$this->Modele->delete($table_votes, $criteres_votes);
-		$this->Modele->delete($table_users, $criteres_user);
-
 		$data['message'] = '<div class="alert alert-success text-center" id="message">L\'element est supprimé avec succès</div>';
 		$this->session->set_flashdata($data);
 		redirect(base_url('donnees/Candidats/'));
 	}
+	//Fonction utiliser  pour  voter
+	public function submit_votDDe($id) {
+        $candidat_id =$this->Modele->encrypt_vote($id);
+        $electeur_id = $this->Modele->encrypt_vote($this->session->userdata('ID_UTILISATEUR'));
+ 
+        $data_insert = array(
+            'ID_ELECTEUR' => $electeur_id,
+            'ID_CANDIDAT' =>  $candidat_id,
+        );
+        $table = 'votes';
+        $this->Modele->create($table, $data_insert);
+		print_r(json_encode(1));
+        // $data['message'] = '<div class="alert alert-success text-center" id="message">' . "L'ajout se faite avec succès" . '</div>';
+        // $this->session->set_flashdata($data);
+        // redirect(base_url('donnees/Candidats/'));
+
+    }
+
+
+
 	public function submit_vote($id) {
         
             $candidate_id = $id;
@@ -463,7 +430,7 @@ class  Candidats extends CI_Controller
             echo "La chaîne de blocs est invalide!";
             return;
         }
-        $candidates = $this->Modele->get_alles();
+        $candidates = $this->Modele->get_all_candidates();
         $blocks = $this->Blockchain_model->get_all_blocks();
         $votes = $this->count_votes_from_blocks($blocks);
 
@@ -474,7 +441,7 @@ class  Candidats extends CI_Controller
         // Comptage des votes
         foreach ($votes as $candidate_id => $vote_count) {
             foreach ($candidates as &$candidate) {
-                if ($candidate['ID_PARTICIPANT'] == $candidate_id) {
+                if ($candidate['ID_CANDIDAT'] == $candidate_id) {
                     $candidate['votes'] = $vote_count;
                 }
             }

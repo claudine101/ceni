@@ -83,6 +83,45 @@
                       <?php echo form_error('ID_PARTIE_POLITIQUE', '<div class="text-danger">', '</div>'); ?>
                     </div>
 
+                    <div class="form-group col-md-3">
+                      <label id="Ftype" for="Ftype" style="color:white">Province</label>
+                      <select required class="form-control form-control-sm" name="PROVINCE_ID" id="PROVINCE_ID" onchange="onSelected();">
+                        <option value="">---Sélectionner---</option>
+                        <?php
+                        foreach ($provinces as $value) {
+                        ?>
+                          <option value="<?= $value['PROVINCE_ID'] ?>"><?= $value['PROVINCE_NAME'] ?></option>
+                        <?php
+                        }
+                        ?>
+                      </select>
+                    </div>
+
+                    <div class="form-group col-md-3">
+                      <label id="Ftype" for="Ftype" style="color:white">Commune</label>
+                      <select required class="form-control form-control-sm" name="COMMUNE_ID" id="COMMUNE_ID" onchange="onSelected_com();">
+                        <option value="">---Sélectionner---</option>
+                        
+                      </select>
+                     
+                    </div>
+                    <div class="form-group col-md-3">
+                      <label id="Ftype" for="Ftype" style="color:white">Zone</label>
+                      <select required class="form-control form-control-sm" name="ZONE_ID" id="ZONE_ID" onchange="onSelected_zone();">
+                        <option value="">---Sélectionner---</option>
+                      </select>
+                     
+                    </div>
+
+                    <div class="form-group col-md-3">
+                      <label id="Ftype" for="Ftype" style="color:white">Colline</label>
+                      <select required class="form-control form-control-sm" name="COLLINE_ID" id="COLLINE_ID" onchange="onSelected_colline();">
+                        <option value="">---Sélectionner---</option>
+                       
+                      </select>
+                     
+                    </div>
+
                  
                     
                     
@@ -200,10 +239,10 @@
   url: "<?php echo base_url('donnees/Candidats/listing/'); ?>",
   type:"POST",
   data : {
-    /* PROVINCE_ID: $('#PROVINCE_ID').val(),
+    PROVINCE_ID: $('#PROVINCE_ID').val(),
     COMMUNE_ID: $('#COMMUNE_ID').val(),
-    ZONE_ID: $('#ZONE_ID').val(), */
-    
+    ZONE_ID: $('#ZONE_ID').val(),
+    COLLINE_ID: $('#COLLINE_ID').val(),
     ID_POSTE: $('#ID_POSTE').val(),
     ID_PARTIE_POLITIQUE: $('#ID_PARTIE_POLITIQUE').val()
   },
@@ -254,6 +293,7 @@
   }
   function onSelected_zone()
   {
+    get_collines();
     liste();
   }
 
@@ -266,6 +306,11 @@
     liste();
 
   }
+  function onSelected_colline()
+  {
+    liste();
+  }
+
   function get_communes(){
     var PROVINCE_ID = $('#PROVINCE_ID').val();
     if (PROVINCE_ID == '') {
@@ -300,6 +345,23 @@
         dataType: "JSON",
         success: function(data) {
           $('#ZONE_ID').html(data);
+        }
+      });
+
+    }
+  }
+  function get_collines() {
+    var ZONE_ID = $('#ZONE_ID').val();
+    if (ZONE_ID == '') {
+      $('#COLLINE_ID').html('<option value="">---Sélectionner---</option>');
+    } else {
+      $('#COLLINE_ID').html('<option value="">---Sélectionner---</option>');
+      $.ajax({
+        url: "<?= base_url() ?>ihm/Provinces/get_collines/" + ZONE_ID,
+        type: "GET",
+        dataType: "JSON",
+        success: function(data) {
+          $('#COLLINE_ID').html(data);
         }
       });
 

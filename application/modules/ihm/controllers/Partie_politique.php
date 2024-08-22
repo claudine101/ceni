@@ -31,7 +31,7 @@ class  Partie_politique extends CI_Controller
 	{
 
 		$i = 1;
-		$query_principal = 'SELECT ID_PARTIE_POLITIQUE , DESCRPTION FROM partie_politiques WHERE 1';
+		$query_principal = 'SELECT ID_PARTIE_POLITIQUE , DESCRIPTION FROM partie_politiques WHERE 1';
 		$var_search = !empty($_POST['search']['value']) ? $_POST['search']['value'] : null;
 		$var_search=str_replace("'", "\'", $var_search);
 		$limit = 'LIMIT 0,10';
@@ -42,11 +42,11 @@ class  Partie_politique extends CI_Controller
 
 		$order_by = '';
 
-		$order_column = array('ID_PARTIE_POLITIQUE','DESCRPTION');
+		$order_column = array('ID_PARTIE_POLITIQUE','DESCRIPTION');
 
-		$order_by = isset($_POST['order']) ? ' ORDER BY ' . $order_column[$_POST['order']['0']['column']] . '  ' . $_POST['order']['0']['dir'] : ' ORDER BY DESCRPTION DESC';
+		$order_by = isset($_POST['order']) ? ' ORDER BY ' . $order_column[$_POST['order']['0']['column']] . '  ' . $_POST['order']['0']['dir'] : ' ORDER BY DESCRIPTION DESC';
 
-		$search = !empty($_POST['search']['value']) ? ("AND DESCRPTION LIKE '%$var_search%'") : '';
+		$search = !empty($_POST['search']['value']) ? ("AND DESCRIPTION LIKE '%$var_search%'") : '';
 
 		$critaire = '';
 
@@ -75,7 +75,7 @@ class  Partie_politique extends CI_Controller
 			<div class='modal-content'>
 
 			<div class='modal-body'>
-			<center><h5><strong>Voulez-vous supprimer?</strong> <br><b style='background-color:prink;color:green;'><i>" . $row->DESCRPTION . " </i></b></h5></center>
+			<center><h5><strong>Voulez-vous supprimer?</strong> <br><b style='background-color:prink;color:green;'><i>" . $row->DESCRIPTION . " </i></b></h5></center>
 			</div>
 
 			<div class='modal-footer'>
@@ -89,7 +89,7 @@ class  Partie_politique extends CI_Controller
 			$sub_array = array();
 			$u=++$u;
 			$sub_array[]=$u;
-			$sub_array[] = $row->DESCRPTION;
+			$sub_array[] = $row->DESCRIPTION;
 			$sub_array[] = $option;
 			$data[] = $sub_array;
 		}
@@ -119,14 +119,14 @@ class  Partie_politique extends CI_Controller
      }
 	function add()
 	{
-		$this->form_validation->set_rules('DESCRPTION', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('DESCRIPTION', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		if ($this->form_validation->run() == FALSE) {
 			$this->ajouter();
 		} else {
 
 			$data_insert = array(
 
-				'DESCRPTION' => $this->input->post('DESCRPTION'),
+				'DESCRIPTION' => $this->input->post('DESCRIPTION'),
 			);
 			$table = 'partie_politiques';
 			$this->Modele->create($table, $data_insert);
@@ -145,7 +145,7 @@ class  Partie_politique extends CI_Controller
 
 	function update()
 	{
-		$this->form_validation->set_rules('DESCRPTION', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('DESCRIPTION', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		$id = $this->input->post('ID_PARTIE_POLITIQUE ');
 
 		if ($this->form_validation->run() == FALSE) {
@@ -154,7 +154,7 @@ class  Partie_politique extends CI_Controller
 			$id = $this->input->post('ID_PARTIE_POLITIQUE');
 
 			$data = array(
-				'DESCRPTION' => $this->input->post('DESCRPTION'),
+				'DESCRIPTION' => $this->input->post('DESCRIPTION'),
 			);
 			$this->Modele->update('partie_politiques', array('ID_PARTIE_POLITIQUE ' => $id), $data);
 			$datas['message'] = '<div class="alert alert-success text-center" id="message">La modification du parti politique est faite avec succès</div>';

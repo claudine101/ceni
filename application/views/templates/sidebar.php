@@ -61,7 +61,7 @@
 
   .content-wrapper {
     /*background-color: #312f568f;*/
-    background-image: url('<?= base_url() ?>/upload/policeTrois.png');
+    background-image: url('<?= base_url() ?>/upload/Artboard.png');
     background-size: cover;
     background-repeat: no-repeat;
     height: 100%;
@@ -152,7 +152,7 @@
          <img height="13.5%" width="100%" src="<?= $logo?>" alt="" class="brand-image">
         <?php }else{  ?>
         
-         <img height="13.5%" width="100%" src="<?= base_url() ?>upload/bannerUne.png" alt="" class="brand-image">
+         <img height="13.5%" width="100%" src="<?= base_url() ?>upload/logo.png" alt="" class="brand-image">
          <?php } ?>
 <!-- <?= $assureur ?> -->
  

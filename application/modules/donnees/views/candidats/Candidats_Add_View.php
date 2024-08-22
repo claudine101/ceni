@@ -52,53 +52,59 @@
                   <div class="row">
                     <div class="col-md-6">
                       <label for="FName">Nom</label>
-                      <input type="text" name="NOM_CANDIDAT" autocomplete="off" id="NOM_CANDIDAT" value="<?= set_value('NOM_CANDIDAT') ?>" class="form-control" >
-                      <?php echo form_error('NOM_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
+                      <input type="text" name="NOM" autocomplete="off" id="NOM" value="<?= set_value('NOM') ?>" class="form-control" >
+                      <?php echo form_error('NOM', '<div class="text-danger">', '</div>'); ?>
                     </div>
 
 
                     <div class="col-md-6">
                       <label for="FName">Prenom</label>
-                      <input type="text" name="PRENOM_CANDIDAT" autocomplete="off" id="PRENOM_CANDIDAT" value="<?= set_value('PRENOM_CANDIDAT') ?>" class="form-control">
-                      <?php echo form_error('PRENOM_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
+                      <input type="text" name="PRENOM" autocomplete="off" id="PRENOM" value="<?= set_value('PRENOM') ?>" class="form-control">
+                      <?php echo form_error('PRENOM', '<div class="text-danger">', '</div>'); ?>
 
-                    </div>
-                    <div class="col-md-6">
-                      <label for="FName">Numero CNI</label>
-                      <input type="text" name="NUMERO_CNI_CANDIDAT" autocomplete="off" id="NUMERO_CNI_CANDIDAT" value="<?= set_value('NUMERO_CNI_CANDIDAT') ?>" class="form-control">
-                      <?php echo form_error('NUMERO_CNI_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
                     </div>
                     <div class="col-md-6">
                       <label for="FName">Téléphone</label>
-                      <input type="tel" name="TELEPHONE_CANDIDAT" autocomplete="off" id="TELEPHONE_CANDIDAT" value="<?= set_value('TELEPHONE_CANDIDAT') ?>" class="form-control">
+                      <input type="tel" name="TELEPHONE" autocomplete="off" id="TELEPHONE" value="<?= set_value('TELEPHONE') ?>" class="form-control">
 
-                      <?php echo form_error('TELEPHONE_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
+                      <?php echo form_error('TELEPHONE', '<div class="text-danger">', '</div>'); ?>
 
                     </div>
                     <div class="col-md-6">
                       <label for="FName"> Email</label>
-                      <input type="text" name="EMAIL_CANDIDAT" autocomplete="off" id="EMAIL_CANDIDAT" value="<?= set_value('EMAIL_CANDIDAT') ?>" class="form-control">
+                      <input type="text" name="EMAIL" autocomplete="off" id="EMAIL" value="<?= set_value('EMAIL') ?>" class="form-control">
 
-                      <?php echo form_error('EMAIL_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
+                      <?php echo form_error('EMAIL', '<div class="text-danger">', '</div>'); ?>
                     </div>
                     <div class="col-md-6">
+                      <label for="FName">Numero CNI</label>
+                      <input type="text" name="NUMERO_CNI" autocomplete="off" id="NUMERO_CNI" value="<?= set_value('NUMERO_CNI') ?>" class="form-control">
+                      <?php echo form_error('NUMERO_CNI', '<div class="text-danger">', '</div>'); ?>
+                    </div>
+                    
+                    <div class="col-md-6">
                       <label for="FName"> Date de naissance</label>
-                      <input type="date" name="DATE_NAISSANCE_CANDIDAT" autocomplete="off" id="DATE_NAISSANCE_CANDIDAT" value="<?= set_value('DATE_NAISSANCE_CANDIDAT') ?>" class="form-control">
+                      <input type="date" name="DATE_NAISSANCE" autocomplete="off" id="DATE_NAISSANCE" value="<?= set_value('DATE_NAISSANCE') ?>" class="form-control">
 
-                      <?php echo form_error('DATE_NAISSANCE_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
+                      <?php echo form_error('DATE_NAISSANCE', '<div class="text-danger">', '</div>'); ?>
                     </div>
                     
                     <div class="col-md-6">
                       <label for="Ftype">Sexe</label>
-                      <select class="form-control" name="SEXE_CANDIDAT" id="SEXE_CANDIDAT">
+                      <select class="form-control" name="ID_SEXE" id="ID_SEXE" onchange="get_communes();">
                         <option value="">---Sélectionner---</option>
-                        <option value="H">Homme</option>
-                        <option value="F">Femme</option>
-
+                        <?php
+                        foreach ($sexe as $value) {
+                        ?>
+                          <option value="<?= $value['ID_SEXE'] ?>"><?= $value['DESCRIPTION'] ?></option>
+                        <?php
+                        }
+                        ?>
                       </select>
                       <!-- <div><font color="red" id="error_province"></font></div>  -->
-                      <?php echo form_error('SEXE_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
+                      <?php echo form_error('ID_SEXE', '<div class="text-danger">', '</div>'); ?>
                     </div>
+
                     <div class="col-md-6">
                       <label for="Ftype">Postes</label>
                       <select class="form-control" name="ID_POSTE" id="ID_POSTE">
@@ -166,11 +172,11 @@
 
                     <div class="col-md-6">
                       <label for="Ftype">Colline</label>
-                      <select class="form-control" name="ID_COLLINE_CANDIDAT" id="ID_COLLINE_CANDIDAT">
+                      <select class="form-control" name="ID_COLLINE" id="ID_COLLINE">
                         <option value="">---Sélectionner---</option>
                       </select>
                       <!-- <div><font color="red" id="error_colline"></font></div> -->
-                      <?php echo form_error('ID_COLLINE_CANDIDAT', '<div class="text-danger">', '</div>'); ?>
+                      <?php echo form_error('ID_COLLINE', '<div class="text-danger">', '</div>'); ?>
                     </div>
                     
 
@@ -343,11 +349,11 @@ function generate_code(taille=0){
     if (ID_PROVINCE == '') {
       $('#ID_COMMUNE').html('<option value="">---Sélectionner---</option>');
       $('#ID_ZONE').html('<option value="">---Sélectionner---</option>');
-      $('#ID_COLLINE_CANDIDAT').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE').html('<option value="">---Sélectionner---</option>');
     }
     else { 
       $('#ID_ZONE').html('<option value="">---Sélectionner---</option>');
-      $('#ID_COLLINE_CANDIDAT').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE').html('<option value="">---Sélectionner---</option>');
       $.ajax({
         url: "<?= base_url() ?>ihm/Provinces/get_communes/" + ID_PROVINCE,
         type: "GET",
@@ -363,9 +369,9 @@ function generate_code(taille=0){
     var ID_COMMUNE = $('#ID_COMMUNE').val();
     if (ID_COMMUNE == '') {
       $('#ID_ZONE').html('<option value="">---Sélectionner---</option>');
-      $('#ID_COLLINE_CANDIDAT').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE').html('<option value="">---Sélectionner---</option>');
     } else {
-      $('#ID_COLLINE_CANDIDAT').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE').html('<option value="">---Sélectionner---</option>');
       $.ajax({
         url: "<?= base_url() ?>ihm/Provinces/get_zones/" + ID_COMMUNE,
         type: "GET",
@@ -380,14 +386,14 @@ function generate_code(taille=0){
   function get_collines(){
     var ID_ZONE = $('#ID_ZONE').val();
     if (ID_ZONE == '') {
-      $('#ID_COLLINE_CANDIDAT').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE').html('<option value="">---Sélectionner---</option>');
     } else {
       $.ajax({
         url: "<?= base_url() ?>ihm/Provinces/get_collines/" + ID_ZONE,
         type: "GET",
         dataType: "JSON",
         success: function(data) {
-          $('#ID_COLLINE_CANDIDAT').html(data);
+          $('#ID_COLLINE').html(data);
         }
       });
 
@@ -399,10 +405,10 @@ function generate_code(taille=0){
     if (ID_PROVINCE_AFFECTATION == '') {
       $('#ID_COMMUNE_AFFECTATION').html('<option value="">---Sélectionner---</option>');
       $('#ID_ZONE_AFFECTATION').html('<option value="">---Sélectionner---</option>');
-      $('#ID_COLLINE_CANDIDAT_AFFECTATION').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE_AFFECTATION').html('<option value="">---Sélectionner---</option>');
     } else {
       $('#ID_ZONE').html('<option value="">---Sélectionner---</option>');
-      $('#ID_COLLINE_CANDIDAT').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE').html('<option value="">---Sélectionner---</option>');
       $.ajax({
         url: "<?= base_url() ?>ihm/Provinces/get_communes/" + ID_PROVINCE_AFFECTATION,
         type: "GET",
@@ -418,9 +424,9 @@ function generate_code(taille=0){
     var ID_COMMUNE_AFFECTATION = $('#ID_COMMUNE_AFFECTATION').val();
     if (ID_COMMUNE_AFFECTATION == '') {
       $('#ID_ZONE_AFFECTATION').html('<option value="">---Sélectionner---</option>');
-      $('#ID_COLLINE_CANDIDAT_AFFECTATION').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE_AFFECTATION').html('<option value="">---Sélectionner---</option>');
     } else {
-      $('#ID_COLLINE_CANDIDAT_AFFECTATION').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE_AFFECTATION').html('<option value="">---Sélectionner---</option>');
       $.ajax({
         url: "<?= base_url() ?>ihm/Provinces/get_zones/" + ID_COMMUNE_AFFECTATION,
         type: "GET",
@@ -438,14 +444,14 @@ function generate_code(taille=0){
     var ID_ZONE_AFFECTATION = $('#ID_ZONE_AFFECTATION').val();
     alert(ID_ZONE)
     if (ID_ZONE == '') {
-      $('#ID_COLLINE_CANDIDAT_AFFECTATION').html('<option value="">---Sélectionner---</option>');
+      $('#ID_COLLINE_AFFECTATION').html('<option value="">---Sélectionner---</option>');
     } else {
       $.ajax({
         url: "<?= base_url() ?>ihm/Provinces/get_collines/" + ID_ZONE_AFFECTATION,
         type: "GET",
         dataType: "JSON",
         success: function(data) {
-          $('#ID_COLLINE_CANDIDAT_AFFECTATION').html(data);
+          $('#ID_COLLINE_AFFECTATION').html(data);
         }
       });
 
@@ -513,6 +519,6 @@ function generate_code(taille=0){
       day = '0' + day.toString();
     var minDate = year + '-' + month + '-' + day;
     var maxDate = year + '-' + month + '-' + day;
-    $('#DATE_NAISSANCE_CANDIDAT').attr('max', maxDate);
+    $('#DATE_NAISSANCE').attr('max', maxDate);
   });
 </script>
