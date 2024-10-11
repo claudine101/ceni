@@ -7,20 +7,110 @@ class Modele extends CI_Model{
   {
     parent::__construct();
     $this->load->library('encryption');
+
+  
+     
+     //# Générer la clé privée RSA (4096 bits)
+     //openssl genpkey -algorithm RSA -out private.pem -pkeyopt rsa_keygen_bits:4096
+
+      # Extraire la clé publique de la clé privée
+      //openssl rsa -pubout -in private.pem -out public.pem
+
+    // Charger les clés privées et publiques RSA
+     $this->privateKey = openssl_pkey_get_private(file_get_contents(APPPATH . 'keys/private.pem'));
+     $this->publicKey = openssl_pkey_get_public(file_get_contents(APPPATH . 'keys/public.pem'));
+ }
+
+ /**
+     * Enregistrer un vote et le signer numériquement.
+     * @param int $id_utilisateur ID de l'électeur.
+     * @param int $id_candidat ID du candidat choisi.
+     * @return bool
+     */
+    public function enregistrer_vote($id_utilisateur, $id_candidat) {
+      $vote_data = $id_utilisateur . '|' . $id_candidat;
+
+      // Signer le vote avec la clé privée RSA
+      $signature = null;
+      openssl_sign($vote_data, $signature, $this->privateKey, OPENSSL_ALGO_SHA256);
+      $signature_base64 = base64_encode($signature);  // Encoder la signature en Base64
+
+      // Enregistrer le vote chiffré et la signature dans la base de données
+      $data = array(
+          'ID_UTILISATEUR' => $id_utilisateur,
+          'ID_CANDIDAT' => $id_candidat,
+          'ENCRYPTED_VOTE' => base64_encode($vote_data),  // Si vous chiffrez les votes avec AES
+          'SIGNATURE' => $signature_base64
+      );
+
+      return $this->db->insert('votes', $data);
   }
 
-  public function encrypt_vote($vote_data) {
-    $encrypted_vote = $this->encryption->encrypt($vote_data);
-    return $encrypted_vote;
-}
-public function get_all_candidates() {
-  $query = $this->db->get('candidats');
-  return $query->result_array();
-}
-public function decrypt_vote($encrypted_vote) {
-    $decrypted_vote = $this->encryption->decrypt($encrypted_vote);
-    return $decrypted_vote;
-}
+  /**
+   * Vérifier l'intégrité et l'authenticité du vote à l'aide de la clé publique RSA.
+   * @param string $vote_data Données du vote.
+   * @param string $signature Signature numérique associée.
+   * @return bool True si la signature est valide, sinon false.
+  
+     * Vérifie si la signature d'un vote est valide.
+     * @param int $id_utilisateur ID de l'utilisateur.
+     * @param int $id_candidat ID du candidat.
+     * @param string $signature_base64 La signature base64 du vote.
+     * @return bool Retourne true si la signature est valide, sinon false.
+     */
+    public function verifier_signature($id_utilisateur, $id_candidat, $signature_base64) {
+      // Concaténer les données du vote dans le même format que lors de l'enregistrement
+      $vote_data = $id_utilisateur . '|' . $id_candidat;
+      $signature = base64_decode($signature_base64);  // Décoder la signature encodée en base64
+      print_r($signature);
+      print_r($vote_data);
+
+      
+      // Vérifier la signature avec la clé publique RSA
+      $is_valid = openssl_verify($vote_data, $signature, $this->publicKey, OPENSSL_ALGO_SHA256);
+      // print_r($is_valid);
+      exit();
+      // Debugging : afficher le statut de la vérification de la signature
+      if ($is_valid === 1) {
+          return true;  // Signature valide
+      } elseif ($is_valid === 0) {
+          echo "Signature invalide pour l'utilisateur ID: $id_utilisateur, candidat ID: $id_candidat.";
+          return false;  // Signature invalide
+      } else {
+          echo "Erreur lors de la vérification de la signature : " . openssl_error_string();
+          return false;  // Erreur lors de la vérification
+      }
+  }
+  
+    /**
+     * Compte les votes valides pour chaque candidat.
+     * @return array Retourne un tableau avec les candidats et le nombre de votes valides.
+     */
+      public function compter_votes_valides() {
+        // Requête pour récupérer les votes avec les candidats
+        $this->db->select('c.NOM, c.PRENOM,v.ID_CANDIDAT,v.ID_UTILISATEUR,v.SIGNATURE, COUNT(v.ID_VOTE) as nombre_votes');
+        $this->db->from('votes v');
+        $this->db->join('participants c', 'v.ID_CANDIDAT = c.ID_PARTICIPANT ');
+        $this->db->group_by('v.ID_CANDIDAT');
+
+        $result = $this->db->get()->result_array();
+  
+        $votes_valides = [];
+        foreach ($result as $vote) {
+            // Vérifier chaque vote pour valider sa signature
+            if ($this->verifier_signature($vote['ID_UTILISATEUR'], $vote['ID_CANDIDAT'], $vote['SIGNATURE'])) {
+                // Ajouter le candidat et le nombre de votes valides
+                $votes_valides[] = [
+                    'NOM_CANDIDAT' => $vote['NOM'],
+                    'PRENOM_CANDIDAT' => $vote['PRENOM'],
+                    'nombre_votes' => $vote['nombre_votes']
+                ];
+            }
+        }
+
+        return $votes_valides;
+    }
+
   public function create($table,$data){
     $sql=$this->db->insert($table,$data);
     return $sql ;

@@ -11,7 +11,6 @@ class  Candidats extends CI_Controller
 
 		parent::__construct();
 		$this->have_droit();
-		$this->load->model('Blockchain_model');
 		$this->load->model('Modele');
 
 	}
@@ -426,7 +425,7 @@ class  Candidats extends CI_Controller
 		$this->session->set_flashdata($data);
 		redirect(base_url('donnees/Candidats/'));
 	}
-	public function submit_vote($id) {
+	public function submit_votes($id) {
         
             $candidate_id = $id;
             $voter_id = $this->session->userdata('ID_UTILISATEUR');
@@ -444,6 +443,28 @@ class  Candidats extends CI_Controller
             } else {
                 echo "Error casting vote or you have already voted!";
             }
+    }
+/**
+     * Enregistrer un vote.
+     */
+    public function submit_vote($id) {
+        $id_candidat = $id;
+        $id_utilisateur = $this->session->userdata('ID_UTILISATEUR');
+
+        if ($this->Modele->enregistrer_vote($id_utilisateur, $id_candidat)) {
+            $this->session->set_flashdata('message', 'Votre vote a été enregistré avec succès.');
+        } else {
+            $this->session->set_flashdata('error', 'Erreur lors de l\'enregistrement du vote.');
+        }
+        redirect('votes/resultats');
+    }
+
+	/**
+     * Affiche les résultats des votes valides avec le nombre de votes par candidat.
+     */
+    public function resultats() {
+        $data['votes_valides'] = $this->Modele->compter_votes_valides();
+        $this->load->view('resultats_view', $data);
     }
 
 
