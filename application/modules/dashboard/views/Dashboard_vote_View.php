@@ -41,7 +41,7 @@
         <div class="container-fluid">
          <div class="col-sm-6 p-md-0">
  <div class="welcome-text">
-    <h4 style='color:#FFFFFF'>Contrôle rapide</h4>
+    <h4 style='color:#FFFFFF'>Tableau de bord des statistiques électorales</h4>
 
      </div>
     </div>
@@ -54,107 +54,48 @@
    <div class="white_shd full margin_bottom_10">
     <div class="full graph_head">
       <div class="row" style="margin-top: 0px">
-<div class="form-group col-md-2">
- 
-<label style='color:#FFFFFF'>Catégories</label>
-<select class="form-control"  onchange="get_rapport()" name="ID_CATEGORIE" id="ID_CATEGORIE">
+      <!-- <div class="form-group col-md-3">
+      </div> -->
+<div class="form-group col-md-4">
+<label style='color:#FFFFFF'>Poste</label>
+<select class="form-control"  onchange="get_rapport()" name="ID_POSTE" id="ID_POSTE">
        <option value="">Sélectionner</option>
 <?php
 
 foreach ($categorie as $value){
-if ($value['ID_CATEGORIE'] == set_value('ID_CATEGORIE'))
+if ($value['ID_POSTE'] == set_value('ID_POSTE'))
 {?>
-<option value="<?=$value['ID_CATEGORIE']?>" selected><?=$value['DESCRIPTION']?></option>
+<option value="<?=$value['ID_POSTE']?>" selected><?=$value['DESCRIPTION']?></option>
 <?php } else{ 
  ?>
-<option value="<?=$value['ID_CATEGORIE']?>" ><?=$value['DESCRIPTION']?></option>
+<option value="<?=$value['ID_POSTE']?>" ><?=$value['DESCRIPTION']?></option>
 <?php } } ?>
       </select>
     </div>
- <div class="form-group col-md-1">
-
-<label style='color:#FFFFFF'>Année</label>
-<select class="form-control"  onchange="get_i()" name="mois" id="mois">
-       <option value="">Sélectionner</option>
-<?php
-
-foreach ($dattes as $value){
-if ($value['mois'] == set_value('mois'))
-{?>
-<option value="<?=$value['mois']?>" selected><?=$value['mois']?></option>
-<?php } else{ 
- ?>
-<option value="<?=$value['mois']?>" ><?=$value['mois']?></option>
-<?php } } ?>
-      </select>
-    </div>
-
-<div class="form-group col-md-1"> 
-    
-    <label style='color:#FFFFFF'>Mois</label>
-<select class="form-control"  onchange="get_m()" name="jour" id="jour">
- <option value=""> Sélectionner </option> 
-<?php
-
-foreach ($datte as $value){
-if ($value['jour'] == set_value('jour'))
-{?>
-<option value="<?=$value['jour']?>" selected><?=$value['jour']?></option>
-<?php } else{ 
- ?>
-<option value="<?=$value['jour']?>" ><?=$value['jour']?></option>
-<?php } } ?>
-      </select>
-    </div>
-    <div class="form-group col-md-2"> 
-    
-    <label style='color:#FFFFFF'>Jours</label>
-<select class="form-control"  onchange="get_rapport()" name="heure" id="heure">
- <option value=""> Sélectionner </option> 
-<?php
-
-foreach ($datte as $value){
-if ($value['jour'] == set_value('jour'))
-{?>
-<option value="<?=$value['jour']?>" selected><?=$value['jour']?></option>
-<?php } else{ 
- ?>
-<option value="<?=$value['jour']?>" ><?=$value['jour']?></option>
-<?php } } ?>
-      </select>
-    </div>
-
-
-<div class="form-group col-md-2">
  
- <label style='color:#FFFFFF'>Numéro plaque</label>
+<div class="form-group col-md-4">
+ 
+ <label style='color:#FFFFFF'>Candidat</label>
     <div class="input-group mb-3">
-     <input type="text" class="form-control" name="NUMERO_PLAQUE"  id="NUMERO_PLAQUE"  placeholder="Recherche" value="<?=set_value('NUMERO_PLAQUE')?>">
+     <input type="text" class="form-control" name="CANDIDAT"  id="CANDIDAT"  placeholder="Recherche" value="<?=set_value('CANDIDAT')?>">
     <div class="input-group-prepend">
     <span class="input-group-text"><a href="#" onclick="get_rapport()"><i class="fa fa-search" aria-hidden="true"></i></a></span>
     </div>
      </div>
 </div>
-<div class="form-group col-md-2">
+<div class="form-group col-md-4">
  
- <label style='color:#FFFFFF'>Numéro permis</label>
+    <label style='color:#FFFFFF'>Electeur</label>
     <div class="input-group mb-3">
-             <input type="text" class="form-control " name="NUMERO_PERMIS"  id="NUMERO_PERMIS"  placeholder="Recherche" value="<?=set_value('NUMERO_PERMIS')?>">
-                <div class="input-group-prepend">
-            <span class="input-group-text"><a href="#" onclick="get_rapport()"><i class="fa fa-search" aria-hidden="true"></i></a></span>
-                             </div>
-                            </div>
-                     </div>
-<div class="form-group col-md-2">
-<label style='color:#FFFFFF'>Paiement</label>
-<select class="form-control"  onchange="get_rapport()" name="IS_PAID" id="IS_PAID">
-       <option value="">Sélectionner</option>
-
-        <option value="1">Payée</option>
-       <option value="0">Non payée</option>
-
-      </select>
+      <input type="text" class="form-control " name="ELECTEUR"  id="ELECTEUR"  placeholder="Recherche" value="<?=set_value('ELECTEUR')?>">
+      <div class="input-group-prepend">
+        <span class="input-group-text"><a href="#" onclick="get_rapport()"><i class="fa fa-search" aria-hidden="true"></i></a></span>
+      </div>
     </div>
+</div>
+<!-- <div class="form-group col-md-3">
+</div> -->
+
 
      
 
@@ -167,15 +108,11 @@ if ($value['jour'] == set_value('jour'))
 
 
 <div class="row">
- 
- <div class="col-md-12" style="margin-bottom: 20px"></div>       
-  <div id="container"  class="col-md-6"  ></div>
-  <div id="container0"  class="col-md-6"  ></div>
   <div class="col-md-12" style="margin-bottom: 20px"></div>
   <div id="container1"  class="col-md-6"  ></div>
   <div id="container2"  class="col-md-6"  ></div>
   <div class="col-md-12" style="margin-bottom: 20px"></div>
-  <div id="container3"  class="col-md-6"  ></div>
+  <div id="container3"  class="col-md-12"  ></div>
   <div id="container4"  class="col-md-6"  ></div>
   <div class="col-md-12" style="margin-bottom: 20px"></div>
   
@@ -195,13 +132,41 @@ if ($value['jour'] == set_value('jour'))
                 <table id='mytable' class='table table-bordered table-striped table-hover table-condensed' style="width:1000px">
                   <thead>
                       <th>#</th>
-               <th>NUMERO_PLAQUE</th>
-               <th>NUMERO_PERMIS</th>
-               <th>POLICIER</th>
-               <th>NUMERO_MATRICULE</th>
-               <th>LIEU_EXACTE</th>
-               <th>MONTANT</th>
-               <th>DATTE_FIN</th>
+                      <th>CANDIDAT</th>
+                      <th>CONTACT</th>
+                      <th>CNI</th>
+                      <th>SEXE</th>
+                      <th>DATE DE NAISSANCE</th>
+                      <th>LIEU DE NAISSANCE</th>
+                      <th>PARTIE POLITIQUE</th>
+                  </thead>
+                </table>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Quitter</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal fade" id="myModal1" role="dialog">
+        <div class="modal-dialog modal-lg" style ="width:1000px">
+          <div class="modal-content  modal-lg">
+            <div class="modal-header">
+              <h4 class="modal-title"><span id="titre1"></span></h4>
+            </div>
+            <div class="modal-body">
+              <div class="table-responsive">
+                <table id='mytable1' class='table table-bordered table-striped table-hover table-condensed' style="width:1000px">
+                  <thead>
+                      <th>#</th>
+                      <th>CANDIDAT</th>
+                      <th>CONTACT</th>
+                      <th>CNI</th>
+                      <th>SEXE</th>
+                      <th>DATE DE NAISSANCE</th>
+                      <th>LIEU DE NAISSANCE</th>
                   </thead>
                 </table>
               </div>
@@ -269,31 +234,31 @@ function get_m() {
 <script> 
 function get_rapport(){ 
 
-var NUMERO_PLAQUE=$('#NUMERO_PLAQUE').val();
-var NUMERO_PERMIS=$('#NUMERO_PERMIS').val();
+var CANDIDAT=$('#CANDIDAT').val();
+var ELECTEUR=$('#ELECTEUR').val();
 var mois=$('#mois').val();  
 var jour=$('#jour').val();
 var heure=$('#heure').val();  
 var IS_PAID=$('#IS_PAID').val();
-var ID_CATEGORIE=$('#ID_CATEGORIE').val();
+var ID_POSTE=$('#ID_POSTE').val();
 
 
 
 
 
 $.ajax({
-url : "<?=base_url()?>dashboard/Dashbord_Controle_Rapide/get_rapport",
+url : "<?=base_url()?>dashboard/Dashboard_vote/get_rapport",
 type : "POST",
 dataType: "JSON",
 cache:false,
 data:{
-NUMERO_PLAQUE:NUMERO_PLAQUE,
-NUMERO_PERMIS:NUMERO_PERMIS,  
+CANDIDAT:CANDIDAT,
+ELECTEUR:ELECTEUR,  
 mois:mois,
 jour:jour,  
 heure:heure,
 IS_PAID:IS_PAID,
-ID_CATEGORIE:ID_CATEGORIE,
+ID_POSTE:ID_POSTE,
  
 },
 success:function(data){   

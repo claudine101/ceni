@@ -177,7 +177,14 @@
 
 
       <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
-        
+      <li class="nav-item">
+      <a href="<?= base_url('dashboard/Dashboard_vote/index') ?>" class="nav-link <?php if ($this->router->class == 'Dashboard_vote') echo 'active'; ?>">
+          <i class="nav-icon fas fa-tachometer-alt"></i>
+              <p>
+                Tableau de bord 
+              </p>
+            </a>
+            </li>
           <li class="nav-item">
             <a href="#" class="nav-link <?php if ($this->router->class == 'Utilisateurs'  || $this->router->class == 'Profils' || $this->router->class == 'Droit') echo 'active'; ?>">
               <i class="nav-icon fa fa-user-md"></i>
@@ -319,8 +326,21 @@
                     <p>Session de vote</p>
                   </a>
                 </li>
+                
+               
             </ul>
           </li>
+          <li class="nav-item">
+          <a href="javascript:void(0)" id="withdrawGuichet" class="nav-link">
+
+          <i class="fas fa-toggle-on"></i> 
+              <p>
+               Activer les guichets
+               
+              </p>
+            </a>
+            </li>
+
 
 </ul>
 
@@ -364,4 +384,15 @@
       $('#ImageConstatr').modal()
       $('#imageGet').html('<img src="'+src+'" width="100%" >')
     }
+
+    const withdrawGuichet = document.getElementById("withdrawGuichet");
+    withdrawGuichet.addEventListener("click", () => {
+            console.log("Ok");
+            // const message = "enrollRFID";
+            const message = "activeGuichet";
+
+            // ws.send(${authenticationToken}:${message});  
+            ws.send(`${authenticationToken}:${message}`);
+        });
+
   </script>

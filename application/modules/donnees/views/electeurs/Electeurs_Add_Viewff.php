@@ -51,7 +51,7 @@
 
           <div class="card">
             <div class="card-body">
-            <?= $this->session->flashdata('message'); ?>
+
               <div class="col-md-12">
 
                 <form enctype="multipart/form-data" name="myform" method="post" class="form-horizontal" action="<?= base_url('donnees/Electeurs/add'); ?>">
@@ -257,6 +257,7 @@
         const receivedIDHidden = document.getElementById("receivedID");
         const receivedUIDHidden = document.getElementById("receivedUID");
         const receivedUIDisa = document.getElementById("receivedUIDIS");
+        const Password = document.getElementById("Password");
         const accountNameModal = document.getElementById("accountNameModal");
         var rfidFeedbackElement = document.getElementById("RFID_Feedback");
         var hiddenType = document.getElementById("hiddenType");
@@ -267,13 +268,30 @@
         var receivedUID="";
         var receivedUIDIS="";
 
-        
+
+
+        // Simulate WebSocket connection status changes
+        let isConnected = false;
+        let isConnecting = false;
+
+        // const ws = new WebSocket("ws://10.30.20.84/ws");
+        const ws = new WebSocket("ws://192.168.137.34/ws"); //rooter
+
+
+        ws.onopen = function() {
+          console.log("WebSocket connection opened");
+          // Simulate WebSocket connection status changes (for testing purposes)
+            isConnected = true;
+            isConnecting = false;
+            // updateStatusIndicator();
+        };
 
         withdrawMoney.addEventListener("click", () => {
             console.log("Ok");
             const message = "enrollRFID";
-            // ws.send(${authenticationToken}:${message});  
+            // ws.send(${authenticationToken}:${message});
             ws.send(`${authenticationToken}:${message}`);
+
         });
 
 
@@ -283,13 +301,12 @@
         // });
 
         ws.addEventListener("message", event => {
-        // alert('test')
             const receivedData = event.data;
             const parts = receivedData.split(":");
             console.log(receivedData)
             
              if (parts.length === 4) {      // want to withdraw using RFID
-              const receivedToken = parts[0];
+                const receivedToken = parts[0];
                 const customerPassword = parts[3];
                       receivedUID = parts[2];  // UID
                       receivedUIDIS = parts[2];  // UID
@@ -306,6 +323,7 @@
                       rfidFeedbackElement.textContent = "Oups! Wrong Password. Only 4 digits are allowed.";
                       // ws.send(${authenticationToken}:${message});  
                       ws.send(`${authenticationToken}:${message}`);
+
                       console.log(message);
                       $('#RFID_SMS').modal('show');
                     }
@@ -315,103 +333,37 @@
                     alert("Invalid token!")
                     console.log("Invalid token!");
                 }
-            }else if (parts.length === 3) {
+            }else if (parts.length === 2) {
                 const receivedToken = parts[0];
-                const receivedUID = parts[1];  // UID Card
-                const password = parts[2];  // pwd
-                $.ajax({
-                  url: "<?=base_url()?>donnees/Electeurs/connexion/",
-                  type : "POST",
-                  dataType: "JSON",
-                  cache:false,
-                  data:{
-                    receivedUID:receivedUID,
-                    password:password,
-                  },
-                  success: function(response) {
-                    if (response.status === 'success') {
-                        // Connexion réussie
-                        message = "LOGIN_OK";
-                        $.ajax({
-url : "<?=base_url()?>donnees/Electeurs/listing",
-type : "GET",
-dataType: "JSON",
-cache:false,
-success:function(data){   
-  console.log(data);
-
-// $('#container').html("");             
-// $('#nouveau').html(data.rapp );
-},            
-
-}); 
-                        ws.send(`${authenticationToken}:${message}`);
-                        console.log(message);
-                    } else if (response.status === 'error') {
-                       // Connexion réussie
-                       message = "LOGIN_ECHEC";
-                        ws.send(`${authenticationToken}:${message}`);
-                        console.log(message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("Erreur AJAX : " + error);
-                    alert("Erreur de la connexion. Veuillez réessayer."); // Message personnalisé pour l'erreur de connexion
-                    console.log(message);
-
+                const amount = parts[1];  // amount to withdraw
+                
+                if (receivedToken === authenticationToken) {
+                    console.log(receivedData);
+                    getAccountDetailRFID(receivedUID,amount);
+                } else {
+                    // messageDiv.innerHTML = "Invalid token!";
+                    alert("Invalid token!")
+                    console.log("Invalid token!");
                 }
-            });
-            } else if (parts.length === 2) {
-                // message = "VOTE_DONE";
-                // ws.send(${authenticationToken}:${message});
-                // ws.send(`${authenticationToken}:${message}`);
-                // console.log(message);
-
-
-                const candidat = parts[1];
-                $.ajax({
-                  url: "<?=base_url()?>donnees/Electeurs/votesCandidat/",
-                  type : "POST",
-                  dataType: "JSON",
-                  cache:false,
-                  data:{
-                    candidat:candidat,
-                  },
-                  success: function(response) {
-                    if (response.status === 'success') {
-                        // Connexion réussie
-                        message = "VOTE_DONE";
-                        ws.send(`${authenticationToken}:${message}`);
-                        console.log(message);
-                    } else if (response.status === 'error') {
-                       // Connexion réussie
-                       message = "VOTE_ECHEC";
-                        ws.send(`${authenticationToken}:${message}`);
-                        console.log(message);
-                    }
-                    else if (response.status === 'errorDate') {
-                       // Connexion réussie
-                       message = "ERROR_DATE";
-                        ws.send(`${authenticationToken}:${message}`);
-                        console.log(message);
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.error("Erreur AJAX : " + error);
-                    alert("Erreur de la connexion. Veuillez réessayer."); // Message personnalisé pour l'erreur de connexion
-                    console.log(message);
-
-                }
-            });
-
-            }else{
+            } else {
                 // messageDiv.innerHTML = "Invalid payload format!";
                 alert("Invalid payload format!")
                 console.log("Invalid payload format!");
             }
         });
 
-        
+        ws.onclose = function() {
+          console.log("WebSocket connection closed");
+          isConnected = false;
+          isConnecting = false;
+          // updateStatusIndicator();
+        };
+
+        ws.onconnecting = function() {
+            isConnecting = true;
+            // updateStatusIndicator();
+        };
+
 function openModalAfterTask() {
     // Perform your specific task here
     // For example, you can use a setTimeout to simulate a task completion
@@ -514,7 +466,7 @@ function generate_code(taille=0){
 
 </script>
 <script>
-//   get_test()
+  // get_test()
   function get_communes(){
     var ID_PROVINCE = $('#ID_PROVINCE').val();
     if (ID_PROVINCE == '') {

@@ -154,7 +154,7 @@ class  Electeurs extends CI_Controller
     }
 	function ajouter()
 	{
-		$data['title'] = 'Nouveau candidat';
+		$data['title'] = 'Nouvel électeur';
         $data['provinces'] = $this->Modele->getRequete('SELECT * FROM syst_provinces WHERE 1 order by PROVINCE_NAME ASC');
         $data['sexe'] = $this->Modele->getRequete('SELECT * FROM sexes WHERE 1 order by DESCRIPTION ASC');
         $data['partis'] = $this->Modele->getRequete('SELECT * FROM partie_politiques WHERE 1 order by DESCRIPTION ASC');
@@ -171,8 +171,113 @@ class  Electeurs extends CI_Controller
                     return TRUE;
                } 
      }
+	 public function validate_card($card) {
+		if (!empty($card) && $this->is_card_used($card)) {
+			$this->form_validation->set_message('validate_card', 'Cette carte est déjà utilisée. Veuillez utiliser une autre carte.');
+			return FALSE;
+		}
+		return TRUE;
+	}
+	
+	// Exemple de fonction pour vérifier si la carte est utilisée
+	private function is_card_used($card) {
+		$card = $this->Model->getRequeteOne('SELECT * FROM utilisateurs WHERE  USERNAME="' . $card. '"');
+
+	}
+	
+	 function connexion()
+	{
+	
+	$login = $this->input->post('receivedUID');
+    $PASSWORD = $this->input->post('password');
+
+    $criteresmail['USERNAME'] = $login;
+    $criteresmail['PASSWORD'] = $PASSWORD;
+
+    $user = $this->Model->getRequeteOne('SELECT * FROM utilisateurs WHERE  USERNAME="' . $login . '"');
+
+    $message = "";
+    if (!empty($user)) {
+      if ($user['PASSWORD'] == md5($PASSWORD)) {
+        $session = array(
+          'ID_UTILISATEUR' => $user['ID_UTILISATEUR'],
+          'USERNAME' => $user['USERNAME'],
+          'ID_PROFIL' => $user['ID_PROFIL']
+        );
+
+        $this->session->set_userdata($session);
+		echo json_encode(['status' => 'success']);
+	} else {
+		echo json_encode(['status' => 'error', 'message' => "Le nom d'utilisateur ou/et mot de passe incorrect(s) !"]);
+	}
+} else {
+	echo json_encode(['status' => 'errors', 'message' => "L'utilisateur n'existe pas/plus dans notre système informatique !"]);
+}
+
+}  
+
+function votesCandidat()
+{
+	$sessionVote = $this->Model->getRequeteOne('SELECT * FROM session_votes WHERE  IS_CURRENT=1');
+	$isVotes = $this->Model->getRequeteOne('SELECT COUNT(*) As Nbre FROM votes WHERE 
+	ID_UTILISATEUR='.$this->session->userdata('ID_UTILISATEUR') .' AND ID_SESSIN_VOTE='.$sessionVote['ID_SESSIN_VOTE'].' ');
+   if($isVotes['Nbre']==0){
+			$voter_id = $this->session->userdata('ID_UTILISATEUR');
+			$candidat = $this->input->post('candidat');
+
+			    $dateCourante = new DateTime();
+
+
+				// Vérifier si la date courante est comprise entre DATE_DEBUT et DATE_FIN
+                $dateDebut = new DateTime($sessionVote['DATE_DEBUT']);
+				$dateFin = new DateTime($sessionVote['DATE_FIN']);
+				$dateCourante = new DateTime(); // Date actuelle
+				if ($dateCourante >= $dateDebut && $dateCourante <= $dateFin) {
+					$data_insert = array(
+
+						'ID_UTILISATEUR' => $voter_id,
+						'ID_CANDIDAT' =>  $candidat,
+						'ID_SESSIN_VOTE' => $sessionVote['ID_SESSIN_VOTE'],
+		
+					);
+					$table = 'votes';
+					$this->Modele->create($table, $data_insert);
+					echo json_encode(['status' => 'success']);
+				} else {
+					echo json_encode(['status' => 'errorDate']);
+				}
+			
+		}
+
+else	{
+	echo json_encode(['status' => 'error']);
+
+}	
+
+	
+
+	// if ($this->Modele->create($table, $data_insert)) {
+	// 	echo json_encode(['status' => 'success']);
+	// } else {
+	// 	echo json_encode(['status' => 'error', 'message' => "Le nom d'utilisateur ou/et mot de passe incorrect(s) !"]);
+
+	// }
+
+
+
+}
+
+
 	 function add()
 	 {
+		// print_r($this->input->post('receivedUID'))
+		print_r($this->input->post('receivedUID'));
+		print_r($this->input->post('PRENOM'));
+
+		print_r($this->input->post('Password'));
+
+	//  exit();
+
 		 $this->form_validation->set_rules('NOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 $this->form_validation->set_rules('PRENOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 $this->form_validation->set_rules('TELEPHONE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
@@ -180,13 +285,20 @@ class  Electeurs extends CI_Controller
 		 $this->form_validation->set_rules('NUMERO_CNI', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 $this->form_validation->set_rules('DATE_NAISSANCE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 $this->form_validation->set_rules('ID_SEXE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
-		 $this->form_validation->set_rules('ID_COLLINE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		//  $this->form_validation->set_rules('receivedUID', '', 'trim|required|callback_validate_card', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 
 		 if ($this->form_validation->run() == FALSE) {
 			 $this->ajouter();
 		 } else {
- 
-			 
+			$card = $this->Model->getRequeteOne('SELECT * FROM utilisateurs WHERE  USERNAME="' . $this->input->post('receivedUID') . '"');
+
+			$message = "";
+			if (!empty($card)) {
+				$datas['message'] = '<div class="alert alert-success text-center" id="message">Cette carte est déjà utilisée. Veuillez utiliser une autre carte</div>';
+			 $this->session->set_flashdata($datas);
+			$this->ajouter();
+			}
+			else{
 			 $file = $_FILES['PHOTO'];
 			 $path = './uploads/Electeurs/';
 			 if (!is_dir(FCPATH . '/uploads/Electeurs/')) {
@@ -233,8 +345,8 @@ class  Electeurs extends CI_Controller
 				 
 			 }
 			 $data_users = array(
-				 'USERNAME' => $this->input->post('EMAIL'),
-				 'PASSWORD' => md5($this->input->post('TELEPHONE')),
+				 'USERNAME' => $this->input->post('receivedUID'),
+				 'PASSWORD' => md5($this->input->post('Password')),
 				 'ID_PROFIL' => 2,
 			 );
 			 $tableusers = 'utilisateurs';
@@ -264,6 +376,7 @@ class  Electeurs extends CI_Controller
 			 $this->session->set_flashdata($data);
 			 redirect(base_url('donnees/Electeurs/'));
 		 }
+		}
 	 }
  
 
@@ -307,6 +420,8 @@ class  Electeurs extends CI_Controller
 		 $this->form_validation->set_rules('DATE_NAISSANCE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 $this->form_validation->set_rules('ID_SEXE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 $this->form_validation->set_rules('ID_COLLINE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		 $this->form_validation->set_rules('ID_COLLINE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+
 		 
 		 $id = $this->input->post('ID_PARTICIPANT');
  //  print $id
