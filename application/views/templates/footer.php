@@ -132,31 +132,7 @@
       })
    
   }
-  // Simulate WebSocket connection status changes
-  let isConnected = false;
-        let isConnecting = false;
-
-        // const ws = new WebSocket("ws://10.30.20.84/ws");
-        const ws = new WebSocket("ws://192.168.137.75/ws"); //rooter
-        ws.onopen = function() {
-          console.log("WebSocket connection opened");
-          // Simulate WebSocket connection status changes (for testing purposes)
-            isConnected = true;
-            isConnecting = false;
-            // updateStatusIndicator();
-        };
-        
-        ws.onclose = function() {
-          console.log("WebSocket connection closed");
-          isConnected = false;
-          isConnecting = false;
-          // updateStatusIndicator();
-        };
-
-        ws.onconnecting = function() {
-            isConnecting = true;
-            // updateStatusIndicator();
-        };
+ 
 
 
         

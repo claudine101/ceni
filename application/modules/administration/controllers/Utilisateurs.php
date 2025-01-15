@@ -33,8 +33,7 @@ class Utilisateurs extends CI_Controller
         if (!empty($profil)) {
              $condition .=  ' and u.ID_PROFIL= "' . $profil . '"';
         }
-		$query_principal = 'SELECT u.ID_UTILISATEUR, u.USERNAME, u.NOM, u.PRENOM, u.NUMERO_CNI, u.TELEPHONE,p.STATUT,
-         u.PASSWORD, u.ID_PROFIL, u.IS_ACTIVE, u.DATE_INSERTION FROM utilisateurs u  JOIN profils p  ON p.ID_PROFIL=u.ID_PROFIL  WHERE 1 '. $condition . ' ';
+		$query_principal = 'SELECT u.ID_UTILISATEUR,p.STATUT, u.USERNAME,  u.ID_PROFIL, u.IS_ACTIVE, u.DATE_INSERTION FROM utilisateurs u  JOIN profils p  ON p.ID_PROFIL=u.ID_PROFIL  WHERE 1 '. $condition . ' ';
 
 		$var_search = !empty($_POST['search']['value']) ? $_POST['search']['value'] : null;
 		$var_search=str_replace("'", "\'", $var_search);
@@ -45,8 +44,8 @@ class Utilisateurs extends CI_Controller
 		}
 		$order_by = '';
 		$order_column = array('ID_UTILISATEUR','USERNAME', 'ID_PROFIL', 'IS_ACTIVE');
-		$order_by = isset($_POST['order']) ? ' ORDER BY ' . $order_column[$_POST['order']['0']['column']] . '  ' . $_POST['order']['0']['dir'] : ' ORDER BY USERNAME,PRENOM ,NUMERO_CNI ASC';
-		$search = !empty($_POST['search']['value']) ? ("AND USERNAME LIKE'%$var_search%' OR PRENOM LIKE '%$var_search%' OR NOM LIKE '%$var_search' OR NUMERO_CNI LIKE '%$var_search' ") : '';
+		$order_by = isset($_POST['order']) ? ' ORDER BY ' . $order_column[$_POST['order']['0']['column']] . '  ' . $_POST['order']['0']['dir'] : ' ORDER BY USERNAME ASC';
+		$search = !empty($_POST['search']['value']) ? ("AND USERNAME LIKE'%$var_search%'  OR NUMERO_CNI LIKE '%$var_search' ") : '';
 		$critaire = '';
 		$query_secondaire = $query_principal . ' ' . $critaire . ' ' . $search . ' ' . $order_by . '   ' . $limit;
 		$query_filter = $query_principal . ' ' . $critaire . ' ' . $search;
@@ -91,7 +90,7 @@ class Utilisateurs extends CI_Controller
 			<div class='modal-content'>
 
 			<div class='modal-body'>
-			<center><h5><strong>Voulez-vous supprimer?</strong> <br><b style='background-color:prink;color:green;'><i>" . $row->USERNAME . " " . $row->PRENOM . "</i></b></h5></center>
+			<center><h5><strong>Voulez-vous supprimer?</strong> <br><b style='background-color:prink;color:green;'><i>" . $row->USERNAME."</i></b></h5></center>
 			</div>
 
 			<div class='modal-footer'>

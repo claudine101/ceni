@@ -21,8 +21,6 @@ class Login extends CI_Controller
     }
   }
 
-  //hhhhhhhhhhhhhhhhhhhh
-
 
   public function do_login()
   {
@@ -33,7 +31,7 @@ class Login extends CI_Controller
     $criteresmail['USERNAME'] = $login;
     $criteresmail['PASSWORD'] = $PASSWORD;
 
-    $user = $this->Model->getRequeteOne('SELECT * FROM utilisateurs WHERE  USERNAME="' . $login . '"');
+    $user = $this->Model->getRequeteOne('SELECT * FROM utilisateurs WHERE IS_ACTIVE=1 AND  USERNAME="' . $login . '"');
 
     $droit = $this->Model->getRequeteOne('SELECT *  FROM droits WHERE ID_PROFIL="' . $user['ID_PROFIL'] . '" ');
 

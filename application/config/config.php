@@ -534,3 +534,5 @@ $config['proxy_ips'] = '';
 // application/config/config.php
 // $config['encryption_key'] = 'your-encryption-key-here';
 
+$config['encryption_key'] = '28afb73670c24ca01fa60b1e0505cbe5'; 
+$config['mac_key'] = 'a5a17fd6d177f242639ea97e340bea46'; 

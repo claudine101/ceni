@@ -117,6 +117,22 @@
   height: 26px;
   border-radius: 50%;
 }
+.hidden {
+    display: none;
+}
+
+#statusIndicator {
+    margin: 20px;
+    font-size: 24px; /* Ajustez la taille des icônes ici */
+}
+
+#connectionStatus {
+    color: white; /* Couleur du texte */
+}
+
+#statusIcon {
+    color: green; /* Couleur de l'icône */
+}
 </style>
 
 <aside class="main-sidebar sidebar-dark-primary elevation-4">
@@ -304,7 +320,7 @@
  <!-- CONFIGURATION -->
 
   <li class="nav-item">
-          <a href="#" class="nav-link <?php if ($this->router->class == 'Couleur'  ||  $this->router->class == 'Infra_infractions' ||  $this->router->class == 'Infra_peines' ||  $this->router->class == 'Autres_controles_questionnaires' || $this->router->class == 'Identite' || $this->router->class == 'Type_Verification' || $this->router->class == 'Question_Categorie' || $this->router->class == 'Gravite' || $this->router->class == 'Chaussee' || $this->router->class == 'Liste_recouvrement' || $this->router->class == 'Historique_Commentaire' || $this->router->class == 'Recouv_Histo') echo 'active'; ?>">
+          <a href="#" class="nav-link <?php if ($this->router->class == 'Session_vote') echo 'active'; ?>">
 
               <i class="nav-icon fa fa-history"></i>
               <p>
@@ -315,18 +331,11 @@
             <ul class="nav nav-treeview">
 
                 <li class="nav-item">
-                  <a href="<?= base_url('ihm/Historique_Commentaire/index') ?>" class="nav-link <?php if ($this->router->class == 'Historique_Commentaire') echo 'active'; ?>">
+                  <a href="<?= base_url('ihm/Session_vote/index') ?>" class="nav-link <?php if ($this->router->class == 'Session_vote') echo 'active'; ?>">
                     <i class="far fa-circle nav-icon"></i>
                     <p>Session de vote</p>
                   </a>
                 </li>
-                <li class="nav-item">
-                  <a href="<?= base_url('ihm/Historique_Commentaire/index') ?>" class="nav-link <?php if ($this->router->class == 'Historique_Commentaire') echo 'active'; ?>">
-                    <i class="far fa-circle nav-icon"></i>
-                    <p>Session de vote</p>
-                  </a>
-                </li>
-                
                
             </ul>
           </li>
@@ -335,10 +344,13 @@
 
           <i class="fas fa-toggle-on"></i> 
               <p>
-               Activer les guichets
-               
-              </p>
+               Activer les guichets</p>
             </a>
+            </li>
+            <i class=""></i> 
+                <div id="statusIndicator">
+                    <span id="connectionStatus" class="hidden">Connexion : <i id="statusIcon" class="fas"></i></span>
+              </div>
             </li>
 
 
@@ -376,7 +388,64 @@
   </div>
   </div>
 
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        let isConnecting = false;
+        let isConnected = false;
 
+        function updateStatusIndicator() {
+            // Afficher le conteneur du statut de connexion
+            $('#connectionStatus').removeClass('hidden');
+            
+            if (isConnecting) {
+                console.log("WebSocket is connecting...");
+                $('#statusIcon').removeClass('fas fa-check-circle fa-times-circle').addClass('fas fa-spinner fa-pulse'); // Icône de chargement
+                $('#isConn').addClass('hidden'); // Cacher le conteneur lors de la connexion
+            } else if (isConnected) {
+                console.log("WebSocket connection opened");
+                $('#statusIcon').removeClass('fas fa-spinner fa-pulse fa-times-circle').addClass('fas fa-check-circle'); // Icône de connecté
+                $('#isConn').removeClass('hidden'); // Afficher le conteneur lorsque connecté
+            } else {
+                console.log("WebSocket connection closed");
+                $('#statusIcon').removeClass('fas fa-spinner fa-pulse fa-check-circle').addClass('fas fa-times-circle'); // Icône de déconnecté
+                $('#isConn').addClass('hidden'); // Cacher le conteneur lorsque déconnecté
+            }
+        }
+
+        // Simuler le début de la connexion
+        isConnecting = true;
+        updateStatusIndicator();
+
+        // Créer la connexion WebSocket
+        const ws = new WebSocket("ws://192.168.137.181/ws");
+
+        ws.onopen = function() {
+            isConnected = true;
+            isConnecting = false;
+            updateStatusIndicator();
+        };
+
+        ws.onmessage = function(event) {
+            console.log("Message received: ", event.data);
+        };
+
+        ws.onerror = function(error) {
+            console.log("WebSocket error: ", error);
+            isConnecting = false;
+            updateStatusIndicator();
+        };
+
+        ws.onclose = function() {
+            isConnected = false;
+            isConnecting = false;
+            updateStatusIndicator();
+        };
+
+        // Mettre à jour l'indicateur de statut initial
+        updateStatusIndicator();
+    });
+</script>
   <script type="text/javascript">
     
     function get_imag(src) {

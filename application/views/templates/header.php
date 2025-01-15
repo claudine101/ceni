@@ -2,7 +2,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title id="app_title">VOTE ELECTRONIQUE</title>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.9-1/crypto-js.js"></script>
   <link rel="icon" type="image/jpg" href="<?=base_url()?>upload/logos.png"/>
 
   <!-- Google Font: Source Sans Pro -->
@@ -76,6 +76,7 @@
 <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-zoomslider/v0.7.0/L.Control.Zoomslider.css' rel='stylesheet' />
 
 
+    <!-- <script src="<?= base_url('assets/js/app.js'); ?>"></script> -->
 <!-- Toastr -->
  <link rel="stylesheet" href="<?=base_url()?>plugins/css/prism.css" />
    

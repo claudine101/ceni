@@ -2,7 +2,8 @@
 <html lang="en">
 <?php include VIEWPATH . 'templates/header.php'; ?>
 
-
+<link rel='stylesheet' href='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.min.css'>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js"></script>
 
 <style type="text/css">
   .mapbox-improve-map {
@@ -88,7 +89,11 @@
                     <thead>
                       <tr>
                         <th data-orderable="false">NO</th>
+                        <th>DESIGNATION</th>
+                        <th>CONTACT</th>
                         <th>DESCRIPTION</th>
+                        <th>STATUT</th>
+
                         <th data-orderable="false">OPTIONS</th>
                       </tr>
                     </thead>
@@ -145,6 +150,84 @@
 
 
 < <script type="text/javascript">
+function activer(id,nom=null,prenom=null){
+    Swal.fire({
+      title: 'Souhaitez-vous activer  '+nom,
+      showDenyButton: true,
+      confirmButtonText: 'Maintenant',
+      denyButtonText: `Pas maintenant`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+      /* Debut ajax*/
+         $.ajax({
+          url : "<?=base_url()?>ihm/Partie_politique/activer/"+id,
+          type : "PUT",
+          dataType: "JSON",
+          cache:false,
+          data: {},
+          beforeSend:function () { 
+          },
+          success:function(data) {
+            console.log(data);
+            liste()
+            Swal.fire('Confirmé!', '', 'success')
+          },
+          error:function() {
+            Swal.fire('Erreur de la connexion', '', 'info')
+          }
+      });
+
+        
+      } else if (result.isDenied) {
+        Swal.fire('Non Confirmé', '', 'info')
+      }
+    })
+
+
+    //Fin ajax
+
+ }
+
+ function desactiver(id,nom=null,prenom=null){
+    Swal.fire({
+      title: 'Souhaitez-vous désactiver  '+nom,
+      showDenyButton: true,
+      confirmButtonText: 'Maintenant',
+      denyButtonText: `Pas maintenant`,
+    }).then((result) => {
+      /* Read more about isConfirmed, isDenied below */
+      if (result.isConfirmed) {
+      /* Debut ajax*/
+         $.ajax({
+          url : "<?=base_url()?>ihm/Partie_politique/desactiver/"+id,
+          type : "PUT",
+          dataType: "JSON",
+          cache:false,
+          data: {},
+          beforeSend:function () { 
+          },
+          success:function(data) {
+            console.log(data);
+            liste()
+            Swal.fire('Confirmé!', '', 'success')
+          },
+          error:function() {
+            Swal.fire('Erreur de la connexion', '', 'info')
+          }
+      });
+
+        
+      } else if (result.isDenied) {
+        Swal.fire('Non Confirmé', '', 'info')
+      }
+    })
+
+
+    //Fin ajax
+
+ }
+
   function liste()
   {
   $('#message').delay('slow').fadeOut(3000);

@@ -25,6 +25,10 @@ class Model extends CI_Model{
         return $query->num_rows();
         
     }
+    public function executeQuery($query)
+    {
+          $this->db->query($query);
+    }
 
 
 

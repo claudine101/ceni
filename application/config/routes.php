@@ -50,5 +50,8 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 |		my-controller/my-method	-> my_controller/my_method
 */
 $route['default_controller'] = 'Login';
+$route['donnees/get_rapport'] = 'donnees/RapportController/get_rapport'; // Pour un module
+$route['donnees/getrapport'] = 'donnees/RapportController/getrapport'; // Pour un module
+
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

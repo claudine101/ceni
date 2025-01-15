@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="105" height="105" viewBox="0 0 105 105">
+  <g id="currency_icon" transform="translate(-494 -2125)">
+    <g id="currency-svgrepo-com" transform="translate(518.631 2159.652)">
+      <path id="Path_28589" data-name="Path 28589" d="M53.019,10.9H7.718A5.264,5.264,0,0,0,2.5,16.118v25.26A5.264,5.264,0,0,0,7.718,46.6h45.3a5.264,5.264,0,0,0,5.218-5.218V16.237A5.29,5.29,0,0,0,53.019,10.9ZM13.766,41.378A6,6,0,0,0,7.718,35.33V22.285a6,6,0,0,0,6.048-6.048H46.971a6,6,0,0,0,6.048,6.048V35.33a6,6,0,0,0-6.048,6.048Z" transform="translate(-2.5 -10.9)" fill="#fff"/>
+      <circle id="Ellipse_1514" data-name="Ellipse 1514" cx="8.657" cy="8.657" r="8.657" transform="translate(19.212 8.776)" fill="#fff"/>
+    </g>
+    <g id="Ellipse_1515" data-name="Ellipse 1515" transform="translate(494 2125)" fill="none" stroke="#fff" stroke-width="2">
+      <circle cx="52.5" cy="52.5" r="52.5" stroke="none"/>
+      <circle cx="52.5" cy="52.5" r="51.5" fill="none"/>
+    </g>
+  </g>
+</svg>

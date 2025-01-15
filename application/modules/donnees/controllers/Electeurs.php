@@ -10,6 +10,7 @@ class  Electeurs extends CI_Controller
 	{
 
 		parent::__construct();
+		$this->load->model('ModelElecteur'); // Vérifiez que le nom est correct
 		$this->have_droit();
 	}
 
@@ -29,6 +30,59 @@ class  Electeurs extends CI_Controller
 		$this->load->view('Electeurs/Electeurs_List_View', $data);
 	}
 
+	function Candidatlisting()
+	{
+		$sessionVote = $this->Model->getRequeteOne('SELECT * FROM session_votes WHERE  IS_CURRENT=1');
+		if(empty($sessionVote)){
+           // Aucun candidat trouvé, retourner un message approprié
+				echo json_encode(['status' => 'success', 'data' => []]);
+		}
+		else{ 
+		if($sessionVote['ID_POSTE']==2|| $sessionVote['ID_POSTE']==3 || $sessionVote['ID_POSTE']==5 ){
+
+		// Utiliser le modèle pour récupérer les candidats
+		$cand = $this->Modele->getRequete("
+		SELECT p.ID_PARTIE_POLITIQUE AS ID, p.DESIGNATION AS DESCRIPTION, 'Partie Politique' AS TYPE
+		FROM partie_politiques p
+		WHERE p.IS_ACTIVE = 1
+
+		UNION ALL
+
+		SELECT pa.ID_PARTIE_POLITIQUE AS ID, pa.NOM AS DESCRIPTION, 'Participant' AS TYPE
+		FROM participants pa
+		WHERE pa.IS_CANDIDAT = 1 AND pa.IS_ACTIVE = 1 AND pa.ID_POSTE = ".$sessionVote['ID_POSTE']);
+
+		// Vérifier si des résultats sont trouvés
+		if ($cand) {
+			// Retourner les candidats au format JSON
+			echo json_encode(['status' => 'success', 'data' => $cand]);
+		} else {
+			// Aucun candidat trouvé, retourner un message approprié
+			echo json_encode(['status' => 'success', 'data' => []]);
+		}
+		
+			
+		}
+		else {
+			// Utiliser le modèle pour récupérer les candidats
+			$cand = $this->Modele->getRequete(" 
+			SELECT p.ID_PARTICIPANT AS ID, 
+			   CONCAT(p.NOM, ' ', p.PRENOM) AS DESCRIPTION 
+			FROM participants p 
+			WHERE IS_CANDIDAT = 1 AND p.ID_POSTE=".$sessionVote['ID_POSTE'].";");
+	
+			// Vérifier si des résultats sont trouvés
+			if ($cand) {
+				// Retourner les candidats au format JSON
+				echo json_encode(['status' => 'success', 'data' => $cand]);
+			} else {
+				// Aucun candidat trouvé, retourner un message approprié
+				echo json_encode(['status' => 'success', 'data' => []]);
+			}
+		}
+	}
+    }
+	
 	function listing()
 	{
 		$i = 1;
@@ -123,7 +177,7 @@ class  Electeurs extends CI_Controller
 			$sub_array[] = '<table> <tbody><tr><td>' . $row->TELEPHONE . ' ' . $row->EMAIL . '</td></tr></tbody></table></a>';
             $sub_array[] = $row->NUMERO_CNI;
 			$sub_array[] = $this->notifications->ago($row->DATE_NAISSANCE, date('Y-m-d'));
-            $sub_array[] = $row->ID_SEXE;
+            $sub_array[] = ($row->ID_SEXE==1 )?"Homme":"Femme";
 			$sub_array[] = $this->get_icon($row->IS_ACTIVE,$row);
 			$sub_array[] = $row->COLLINE_NAME.'-'.$row->ZONE_NAME.'-'.$row->COMMUNE_NAME.'-'.$row->PROVINCE_NAME;
 			$sub_array[] = $option;
@@ -185,44 +239,38 @@ class  Electeurs extends CI_Controller
 
 	}
 	
-	 function connexion()
+	function connexion()
 	{
 	
-	$login = $this->input->post('receivedUID');
-    $PASSWORD = $this->input->post('password');
+			$login = $this->input->post('receivedUID');
+			$fingerId = $this->input->post('fingerId');
 
-    $criteresmail['USERNAME'] = $login;
-    $criteresmail['PASSWORD'] = $PASSWORD;
+			$user = $this->Model->getRequeteOne('SELECT * FROM participants WHERE  IS_ACTIVE=1 AND  NO_EMP='.$fingerId .'  AND  CARTE_NUMERIQUE="' . $login . '"');
+			
+			$message = "";
+			if (!empty($user)) {
+				$session = array(
+				'ID_PARTICIPANT' => $user['ID_PARTICIPANT'],
+				'CARTE_NUMERIQUE' => $user['CARTE_NUMERIQUE'],
+				);
 
-    $user = $this->Model->getRequeteOne('SELECT * FROM utilisateurs WHERE  USERNAME="' . $login . '"');
+					$this->session->set_userdata($session);
+					echo json_encode(['status' => 'success']);
+				
+			} else {
+				echo json_encode(['status' => 'errors', 'message' => "L'utilisateur n'existe pas/plus dans notre système informatique !"]);
+			}
 
-    $message = "";
-    if (!empty($user)) {
-      if ($user['PASSWORD'] == md5($PASSWORD)) {
-        $session = array(
-          'ID_UTILISATEUR' => $user['ID_UTILISATEUR'],
-          'USERNAME' => $user['USERNAME'],
-          'ID_PROFIL' => $user['ID_PROFIL']
-        );
-
-        $this->session->set_userdata($session);
-		echo json_encode(['status' => 'success']);
-	} else {
-		echo json_encode(['status' => 'error', 'message' => "Le nom d'utilisateur ou/et mot de passe incorrect(s) !"]);
-	}
-} else {
-	echo json_encode(['status' => 'errors', 'message' => "L'utilisateur n'existe pas/plus dans notre système informatique !"]);
-}
-
-}  
+   }  
 
 function votesCandidat()
 {
 	$sessionVote = $this->Model->getRequeteOne('SELECT * FROM session_votes WHERE  IS_CURRENT=1');
 	$isVotes = $this->Model->getRequeteOne('SELECT COUNT(*) As Nbre FROM votes WHERE 
-	ID_UTILISATEUR='.$this->session->userdata('ID_UTILISATEUR') .' AND ID_SESSIN_VOTE='.$sessionVote['ID_SESSIN_VOTE'].' ');
-   if($isVotes['Nbre']==0){
-			$voter_id = $this->session->userdata('ID_UTILISATEUR');
+	ID_UTILISATEUR='.$this->session->userdata('ID_PARTICIPANT') .' AND ID_SESSIN_VOTE='.$sessionVote['ID_SESSIN_VOTE'].' ');
+  
+    if($isVotes['Nbre']==0){
+			$voter_id = $this->session->userdata('ID_PARTICIPANT');
 			$candidat = $this->input->post('candidat');
 
 			    $dateCourante = new DateTime();
@@ -233,13 +281,34 @@ function votesCandidat()
 				$dateFin = new DateTime($sessionVote['DATE_FIN']);
 				$dateCourante = new DateTime(); // Date actuelle
 				if ($dateCourante >= $dateDebut && $dateCourante <= $dateFin) {
+					// Définir la variable de session pour MySQL
+					$this->Model->executeQuery("SET @is_from_application = TRUE");
 					$data_insert = array(
 
 						'ID_UTILISATEUR' => $voter_id,
-						'ID_CANDIDAT' =>  $candidat,
 						'ID_SESSIN_VOTE' => $sessionVote['ID_SESSIN_VOTE'],
 		
 					);
+                    $votes = $this->Model->getRequeteOne('SELECT r.VOTES FROM resultants_votes r WHERE r.ID_CANDIDAT=' . $candidat);
+					if (!empty($votes)) {
+
+						$data_votes = array(
+							'ID_CANDIDAT' =>  $candidat,
+							'VOTES'=>($votes['VOTES']+1),
+						);
+						$table = 'resultants_votes';
+			            $this->Modele->update('resultants_votes', array('ID_CANDIDAT' => $candidat), $data_votes);
+
+					}
+					else {
+						$data_votes = array(
+							'ID_CANDIDAT' =>  $candidat,
+							'VOTES'=>1,
+						);
+						$table = 'resultants_votes';
+					    $this->ModelElecteur->create($table, $data_votes);
+					}
+					
 					$table = 'votes';
 					$this->Modele->create($table, $data_insert);
 					echo json_encode(['status' => 'success']);
@@ -270,13 +339,7 @@ else	{
 
 	 function add()
 	 {
-		// print_r($this->input->post('receivedUID'))
-		print_r($this->input->post('receivedUID'));
-		print_r($this->input->post('PRENOM'));
-
-		print_r($this->input->post('Password'));
-
-	//  exit();
+		
 
 		 $this->form_validation->set_rules('NOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
 		 $this->form_validation->set_rules('PRENOM', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
@@ -290,7 +353,7 @@ else	{
 		 if ($this->form_validation->run() == FALSE) {
 			 $this->ajouter();
 		 } else {
-			$card = $this->Model->getRequeteOne('SELECT * FROM utilisateurs WHERE  USERNAME="' . $this->input->post('receivedUID') . '"');
+			$card = $this->Model->getRequeteOne('SELECT * FROM participants WHERE  CARTE_NUMERIQUE="' . $this->input->post('receivedUID') . '"');
 
 			$message = "";
 			if (!empty($card)) {
@@ -340,18 +403,8 @@ else	{
 				 $img = str_replace(' ', '+', $img);
 				 $data = base64_decode($img);
 				 file_put_contents($pathfiless, $data);
- 
-				 //echo "<img src='".$path."' >";
 				 
 			 }
-			 $data_users = array(
-				 'USERNAME' => $this->input->post('receivedUID'),
-				 'PASSWORD' => md5($this->input->post('Password')),
-				 'ID_PROFIL' => 2,
-			 );
-			 $tableusers = 'utilisateurs';
- 
-			 $idUsers = $this->Modele->insert_last_id($tableusers, $data_users);
  
 			 $data_insert = array(
 				 'NOM' => $this->input->post('NOM'),
@@ -366,7 +419,9 @@ else	{
 				 'ID_PARTIE_POLITIQUE' => $this->input->post('ID_PARTIE_POLITIQUE'),
 				 'ID_COLLINE' => $this->input->post('ID_COLLINE'),
 				 'IS_CANDIDAT'=>0,
-				 'ID_UTILISATEUR'=>$idUsers
+				  'CARTE_NUMERIQUE'=>$this->input->post('receivedUID'),
+				  'EMPREINTE'=>$this->input->post('Password'),
+				  'NO_EMP'=>$this->input->post('finger')
 			 );
 			
  

@@ -22,12 +22,26 @@
       <section class="content-header">
         <div class="container-fluid">
           <div class="row mb-2">
-            <div class="col-sm-9">
+            <div class="col-sm-6">
               <div id="titleNouveau"><h4  class="m-0"><?= $title ?></h4></div>
               <div id="titleAffectation"><h4  style="display: none;" class="m-0">Affectation autorite des menages</h4></div>
 
             </div><!-- /.col -->
-
+              <!-- iscConnCandect -->
+              <div class="col-sm-2 hidden"  id="notConnCand">
+              <a href="javascript:void(0)" class='btn btn-primary float-right' >
+                <i class="fas fa-spinner  loading-icon" ></i>
+                is connecting......
+              </a>
+            </div><!-- /.col -->
+            <!-- notConnCandect -->
+            <div class="col-sm-2 hidden"  id="iscConnCand">
+              <a href="javascript:void(0)" class='btn btn-primary float-right' id="withdrawMoneyCand">
+                <!-- <i class="nav-icon fas fa-list ul"></i> -->
+                <i class="fas fa-id-card " ></i>
+                <span id="buttonText"></span>
+              </a>
+            </div><!-- /.col -->
             <div class="col-sm-3">
               <a href="<?= base_url('donnees/Candidats/index') ?>" class='btn btn-primary float-right'>
                 <i class="nav-icon fas fa-list ul"></i>
@@ -49,6 +63,19 @@
 
                 <form enctype="multipart/form-data" name="myform" method="post" class="form-horizontal" action="<?= base_url('donnees/Candidats/add'); ?>">
                   <div id="add">
+                  <div class="row">
+                      <div class="col-md-12">
+                      <label for="FName">ID</label>
+                      <input type="text" disabled  name="IDCARTECand" autocomplete="off" id="IDCARTECand" value="<?= set_value('IDCARTECand') ?>" class="form-control" >
+                      <input type="hidden"  name="receivedUIDCand" autocomplete="off" id="receivedUIDCand" value="<?= set_value('receivedUIDCand') ?>" class="form-control" >
+                      
+                      <?php echo form_error('receivedUIDCand', '<div class="text-danger">', '</div>'); ?>
+                    </div>
+                      
+                      <input type="hidden" name="PASSWORDCAND" autocomplete="off" id="PASSWORDCAND" value="<?= set_value('PASSWORDCAND') ?>" class="form-control" >
+                      <input type="hidden"  name="FINGERCAND" autocomplete="off" id="FINGERCAND" value="<?= set_value('FINGERCAND') ?>" class="form-control" >
+                      
+                    </div>
                   <div class="row">
                     <div class="col-md-6">
                       <label for="FName">Nom</label>
@@ -127,7 +154,7 @@
                         <?php
                         foreach ($partis as $value) {
                         ?>
-                          <option value="<?= $value['ID_PARTIE_POLITIQUE'] ?>"><?= $value['DESCRIPTION'] ?></option>
+                          <option value="<?= $value['ID_PARTIE_POLITIQUE'] ?>"><?= $value['DESIGNATION'] ?></option>
                         <?php
                         }
                         ?>
@@ -254,6 +281,152 @@
   </div>
 
 <?php include VIEWPATH . 'templates/footer.php'; ?>
+
+
+<script type="text/javascript">
+   
+ const authenticationToken = "23027962-ea6b-4285-a61c-5a43c02ba4ec"; // Replace with your actual token
+        const withdrawMoneyCand = document.getElementById("withdrawMoneyCand");
+        const receivedIDHidden = document.getElementById("receivedID");
+        const receivedUIDHidden = document.getElementById("receivedUIDCand");
+        const IDCARTECanda = document.getElementById("IDCARTECand");
+
+        var receivedUIDCand="";
+        var IDCARTECand="";
+        let iscConnCandected = false;
+        let iscConnCandecting = false;
+
+        // Simuler le début de la connexion
+        iscConnCandecting = true;
+        updateStatusIndicator();
+
+        // const ws = new WebSocket("ws://10.30.20.84/ws");
+        const ws = new WebSocket(`ws://192.168.137.181/ws`); //rooter
+        ws.onopen = function() {
+          console.log("WebSocket connection opened");
+            iscConnCandected = true;
+            iscConnCandecting = false;
+            updateStatusIndicator();
+        };
+        ws.onclose = function() {
+          console.log("WebSocket connection closed");
+          iscConnCandected = false;
+          iscConnCandecting = false;
+          updateStatusIndicator();
+        };
+
+ // Appel initial pour mettre à jour l'affichage
+ updateStatusIndicator();
+
+// Appeler updateStatusIndicator toutes les 10 secondes
+setInterval(updateStatusIndicator, 10000); // 10000 millisecondes = 10 secondes
+   
+const buttonText = document.getElementById("buttonText");
+
+  function updateStatusIndicator() {
+    if (iscConnCandected) {
+      $('#iscConnCand').removeClass('hidden'); // Afficher le conteneur du bouton
+      $('#notConnCand').addClass('hidden'); // Afficher le conteneur du bouton
+
+      
+      buttonText.textContent = "Activer la carte"; // Texte par défaut
+    }
+    else if(iscConnCandecting) {
+      $('#notConnCand').removeClass('hidden'); // Afficher le conteneur du bouton
+      $('#iscConnCand').addClass('hidden'); // Afficher le conteneur du bouton
+
+    }
+     else{
+      //  $('#isClose').removeClass('hidden'); // Afficher le conteneur du bouton
+     } 
+
+    }
+
+    withdrawMoneyCand.addEventListener("click", () => {
+            console.log("Ok");
+            const message = "enrollRFID";
+            // ws.send(${authenticationToken}:${message}); 
+            buttonText.textContent = "Scanner carte"; // Change le texte si connecté 
+           ws.send(`${authenticationToken}:${message}:''`);
+        });
+
+
+        ws.addEventListener("message", event => {
+        // alert('test')
+            const receivedData = event.data;
+            const parts = receivedData.split(":");
+            console.log(receivedData)
+            
+             if (parts.length === 5) {      // want to withdraw using RFID
+                   const receivedToken = parts[0];
+                    const customerPassword = decryptMessage(parts[3]);
+                      receivedUIDCand = decryptMessage(parts[2]);  // UID
+                      IDCARTECand = decryptMessage(parts[2]);  // UID
+                      const ID_FINGER = decryptMessage(parts[4]);
+                      receivedUIDHidden.value=receivedUIDCand;
+                      IDCARTECanda.value=IDCARTECand;
+                      PASSWORDCAND.value=customerPassword
+                      FINGERCAND.value=ID_FINGER
+
+                console.log(customerPassword)
+                if (receivedToken === authenticationToken) {
+                    if (customerPassword.length===4) {
+                        console.log(receivedData);
+                    }else{
+                      message = "WD";
+                      rfidFeedbackElement.textContent = "Oups! Wrong Password. Only 4 digits are allowed.";
+                      // ws.send(${authenticationToken}:${message});  
+                     ws.send(`${authenticationToken}:${message}:''`);
+                      console.log(message);
+                      $('#RFID_SMS').modal('show');
+                    }
+                    
+                } else {
+                    // messageDiv.innerHTML = "Invalid token!";
+                    console.log("Invalid token!");
+                }
+            }
+          });
+           // Fonction de déchiffrement
+      function decryptMessage(encryptedText) {
+            // Déclarer la clé et l'IV
+            const aesKey = [23, 45, 56, 67, 67, 87, 98, 12, 32, 34, 45, 56, 67, 87, 65, 5];
+            const aesIv = [123, 43, 46, 89, 29, 187, 58, 213, 78, 50, 19, 106, 205, 1, 5, 7];
+
+            // Convertir les clés et IV en format WordArray
+            const key = CryptoJS.enc.Hex.parse(aesKey.map(num => ('0' + num.toString(16)).slice(-2)).join(''));
+            const iv = CryptoJS.enc.Hex.parse(aesIv.map(num => ('0' + num.toString(16)).slice(-2)).join(''));
+
+            // Déchiffrer le texte
+            const decrypted = CryptoJS.AES.decrypt(
+                { ciphertext: CryptoJS.enc.Base64.parse(encryptedText) },
+                key,
+                { iv: iv, mode: CryptoJS.mode.CBC, padding: CryptoJS.pad.Pkcs7 }
+            );
+
+            // Convertir le résultat en chaîne
+            return decrypted.toString(CryptoJS.enc.Utf8);
+        }
+
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <script type="text/javascript">
   $(document).ready(function() {
@@ -512,7 +685,7 @@ function generate_code(taille=0){
 
     var month = dtToday.getMonth() + 1; // jan=0; feb=1 .......
     var day = dtToday.getDate();
-    var year = dtToday.getFullYear() - 18;
+    var year = dtToday.getFullYear() - 35;
     if (month < 10)
       month = '0' + month.toString();
     if (day < 10)

@@ -87,10 +87,10 @@ class Dashboard_vote extends CI_Controller
             $critereKey="";
 
             if($KEY==1){
-                $critereKey="AND p.ID_UTILISATEUR  NOT IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1)";
+                $critereKey="AND p.ID_PARTICIPANT NOT IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1)";
             }
             else{
-                $critereKey="AND p.ID_UTILISATEUR  IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1)";
+                $critereKey="AND p.ID_PARTICIPANT  IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1)";
 
             }
             $criteres1="";
@@ -168,21 +168,54 @@ class Dashboard_vote extends CI_Controller
             $criteres_date="";
             $var_search = !empty($_POST['search']['value']) ? $_POST['search']['value'] : null;     
             $query_principal=" ";
-
-
-            $query_principal=" SELECT s.DESCRIPTION AS sexe, par.DESCRIPTION AS partie ,
-                                  col.COLLINE_NAME AS colline ,zo.ZONE_NAME AS zone,
-                                 com.COMMUNE_NAME AS commune,pro.PROVINCE_NAME AS province, 
-                                p.* FROM  participants p 
-                                    LEFT JOIN partie_politiques par ON par.ID_PARTIE_POLITIQUE=p.ID_PARTIE_POLITIQUE 
-                                    LEFT JOIN syst_collines col ON col.COLLINE_ID=p.ID_COLLINE 
-                                    LEFT JOIN syst_zones zo ON zo.ZONE_ID=col.COLLINE_ID 
-                                    LEFT JOIN syst_communes com ON com.COMMUNE_ID=zo.COMMUNE_ID 
-                                    LEFT JOIN syst_provinces pro ON pro.PROVINCE_ID=com.PROVINCE_ID  
-                                    LEFT JOIN sexes s ON s.ID_SEXE=p.ID_SEXE WHERE 1 AND p.IS_CANDIDAT=1 AND p.ID_POSTE=".$KEY;
+            if($KEY==4){
+                $query_principal=" SELECT 
+                'Participant' AS TYPE,
+            p.ID_PARTICIPANT,
+            p.NOM AS DESIGNATION ,
+            p.PRENOM AS DESCRIPTION,
+            p.TELEPHONE,
+            p.EMAIL,
+            p.PHOTO
+                
+            FROM 
+                participants p
+            WHERE 
+                p.IS_CANDIDAT = 1 AND p.IS_ACTIVE=1 AND p.ID_POSTE =".$KEY;
+            }
+            else {
+                $query_principal="  SELECT 
+                        'Parti Politique' AS TYPE,
+                        pp.ID_PARTIE_POLITIQUE,
+                        pp.DESIGNATION,
+                        pp.DESCRIPTION,
+                        pp.TELEPHONE,
+                        pp.EMAIL,
+                        pp.PHOTO
+                    FROM 
+                        partie_politiques pp
+                    WHERE 
+                        1 AND pp.IS_ACTIVE=1
                     
+                    UNION ALL
+                    
+                    SELECT 
+                        'Participant' AS TYPE,
+                    p.ID_PARTICIPANT,
+                    p.NOM,
+                    p.PRENOM,
+                    p.TELEPHONE,
+                    p.EMAIL,
+                    p.PHOTO
+                        
+                    FROM 
+                        participants p
+                    WHERE 
+                        p.IS_CANDIDAT = 1 AND p.IS_ACTIVE=1 AND p.ID_POSTE=".$KEY;
+                        }
 
 
+          
         $limit='LIMIT 0,10';
         if($_POST['length'] != -1)
         {
@@ -207,13 +240,13 @@ class Dashboard_vote extends CI_Controller
                 $intrant=array();
                 $intrant[] = $u;
                 $source = !empty($row->PHOTO) ? $row->PHOTO : "https://app.développé par claudine.bi/wasiliEate/uploads/personne.png";
-                $intrant[] = '<table> <tbody><tr><td><a href="' . $source . '" target="_blank" ><img alt="Avtar" style="border-radius:50%;width:30px;height:30px" src="' . $source . '"></a></td><td>' . $row->NOM . ' ' . $row->PRENOM. '</td></tr></tbody></table></a>';
-                $intrant[] = '<table> <tbody><tr><td>' . $row->TELEPHONE . ' ' . $row->EMAIL . '</td></tr></tbody></table></a>';
-                $intrant[] =$row->NUMERO_CNI;
-                $intrant[] =$row->sexe;
-                $intrant[] =$row->DATE_NAISSANCE;
-                $intrant[] = $row->colline.'-'.$row->zone.'-'.$row->commune.'-'.$row->province;
-                $intrant[] = $row->partie;
+                $intrant[] = '<table> <tbody><tr><td><a href="' . $source . '" target="_blank" ><img alt="Avtar" style="border-radius:50%;width:30px;height:30px" src="' . $source . '"></a></td><td>' . $row->DESIGNATION . '</td></tr></tbody></table></a>';
+                // $intrant[] = '<table> <tbody><tr><td>' . $row->TELEPHONE . ' ' . $row->EMAIL . '</td></tr></tbody></table></a>';
+                $intrant[] = $row->DESCRIPTION;
+                $intrant[] = $row->TELEPHONE;
+                $intrant[] = $row->EMAIL;
+
+
 
                 $data[] = $intrant;
           }
@@ -235,10 +268,16 @@ public function get_rapport(){
         $ID_POSTE=$this->input->post('ID_POSTE');
         $poste="";
         $postes="";
+        $sessionVote = $this->Model->getRequeteOne('SELECT * FROM session_votes WHERE  IS_CURRENT=1');
+
         if (!empty($ID_POSTE)){
-        $poste.="  AND  p.ID_POSTE=".$ID_POSTE;
+        $poste.="  AND  pa.ID_POSTE=".$ID_POSTE;
         $postes.="  AND  ss.ID_POSTE=".$ID_POSTE;
             
+        }
+        else{
+            $poste.="  AND  pa.ID_POSTE=".$sessionVote['ID_POSTE'];
+            $postes.="  AND  ss.ID_POSTE=".$sessionVote['ID_POSTE'];  
         }
             $search='';
             if (!empty($CANDIDAT)) {
@@ -250,7 +289,27 @@ public function get_rapport(){
             $plaque=' and h.ELECTEUR like "%'.$ELECTEUR.'%"'; 
             }
 //techn   
-$votes=$this->Model->getRequete("SELECT  v.ID_CANDIDAT,COUNT(v.ID_CANDIDAT) AS vote,p.PRENOM,p.NOM FROM participants p JOIN votes v ON v.ID_CANDIDAT=p.ID_PARTICIPANT WHERE p.IS_CANDIDAT=1 ".$poste." GROUP BY (v.ID_CANDIDAT)");
+$votes=$this->Model->getRequete("SELECT p.ID_PARTIE_POLITIQUE AS ID, p.DESIGNATION AS DESCRIPTION, 'Partie Politique' AS TYPE, COALESCE(r.VOTES, 0) AS VOTES
+FROM partie_politiques p LEFT JOIN resultants_votes r ON r.ID_CANDIDAT=p.ID_PARTIE_POLITIQUE
+WHERE p.IS_ACTIVE = 1
+
+UNION ALL
+
+SELECT pa.ID_PARTIE_POLITIQUE AS ID,  CONCAT(pa.NOM, ' ', pa.PRENOM) AS DESCRIPTION, 'Participant' AS TYPE, COALESCE(r.VOTES, 0) AS VOTES
+FROM participants pa LEFT JOIN resultants_votes r ON r.ID_CANDIDAT=pa.ID_PARTICIPANT
+WHERE pa.IS_CANDIDAT = 1 AND pa.IS_ACTIVE = 1 ".$poste."
+
+UNION ALL
+
+    SELECT 
+        0 AS ID, 
+        'VOTE NULLE' AS DESCRIPTION, 
+        'Vote Nulle' AS TYPE, 
+        COUNT(*) AS VOTES
+    FROM 
+        resultants_votes r
+    WHERE 
+        r.ID_CANDIDAT = 0");
 
 $candidat_vote=" ";
 $votes_nbre=" ";
@@ -260,16 +319,16 @@ $votes_nbre_total_chiffre=0;
  foreach ($votes as  $value) {
       
       
-$key_id1=($value['ID_CANDIDAT']>0) ? $value['ID_CANDIDAT'] : "0" ;
-$nom=$value['PRENOM']  ;
-$monta=($value['vote']>0) ? $value['vote'] : "0" ;
-$nbre=($value['vote']>0) ? $value['vote'] : "0" ;
+$key_id1=($value['ID']>0) ? $value['ID'] : "0" ;
+$nom=$value['DESCRIPTION']  ;
+$monta=($value['VOTES']>0) ? $value['VOTES'] : "0" ;
+$nbre=($value['VOTES']>0) ? $value['VOTES'] : "0" ;
 
 
-$votes_nbre.="{name:'".str_replace("'","\'", $value['PRENOM'])."', y:". $monta.",key:'". $key_id1."'},";
+$votes_nbre.="{name:'".str_replace("'","\'", $value['DESCRIPTION'])."', y:". $monta.",key:'". $key_id1."'},";
 $candidat_vote.="{name:'".str_replace("'","\'", $nom)." : ".number_format($nbre,0,',',' ')."', y:". $nbre.",key:'". $key_id1."'},";
-$votes_nbre_total=$votes_nbre_total+$value['vote'];
-$votes_nbre_total_chiffre=$votes_nbre_total_chiffre+$value['vote'];
+$votes_nbre_total=$votes_nbre_total+$value['VOTES'];
+$votes_nbre_total_chiffre=$votes_nbre_total_chiffre+$value['VOTES'];
 
     
      }
@@ -277,8 +336,8 @@ $votes_nbre_total_chiffre=$votes_nbre_total_chiffre+$value['vote'];
     // pj
 
 $statParticipant=$this->Model->getRequete("SELECT p.ID_PARTICIPANT,COUNT(p.ID_PARTICIPANT) AS tout, 
-(SELECT COUNT(p.ID_PARTICIPANT)  FROM participants p  WHERE p.ID_UTILISATEUR NOT IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1  ".$postes.")  ) as nonVote, 
-(SELECT COUNT(p.ID_PARTICIPANT)  FROM participants p  WHERE p.ID_UTILISATEUR  IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1  ".$postes.") ) as isVote FROM participants p WHERE 1");
+(SELECT COUNT(p.ID_PARTICIPANT)  FROM participants p  WHERE p.ID_PARTICIPANT NOT IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1  ".$postes.")  ) as nonVote, 
+(SELECT COUNT(p.ID_PARTICIPANT)  FROM participants p  WHERE p.ID_PARTICIPANT  IN (SELECT v.ID_UTILISATEUR FROM votes v JOIN session_votes ss ON v.ID_SESSIN_VOTE=ss.ID_SESSIN_VOTE WHERE 1  ".$postes.") ) as isVote FROM participants p WHERE 1");
 
 $pj_categorie=" ";
 $pj_categorie_monta=" ";
@@ -304,8 +363,34 @@ $pj_categorie_total_monta=$pj_categorie_total_monta+$value['isVote'];
 
 //poste
 
-$immatricula=$this->Model->getRequete("SELECT p.ID_POSTE,p.DESCRIPTION,COUNT(pa.ID_PARTICIPANT) as candidats FROM
- postes p  LEFT JOIN participants pa ON pa.ID_POSTE=p.ID_POSTE WHERE 1 " .$poste."   GROUP BY p.ID_POSTE");
+// $immatricula=$this->Model->getRequete("SELECT p.ID_POSTE,p.DESCRIPTION,COUNT(pa.ID_PARTICIPANT) as candidats FROM
+//  postes p  LEFT JOIN participants pa ON pa.ID_POSTE=p.ID_POSTE WHERE 1 " .$poste."   GROUP BY p.ID_POSTE");
+
+// $immatricula=$this->Model->getRequete("SELECT 
+// p.ID_POSTE,
+// p.DESCRIPTION,
+// COUNT(pa.ID_PARTICIPANT) AS candidats,
+// (SELECT COUNT(pp.ID_PARTIE_POLITIQUE) FROM partie_politiques pp WHERE pp.IS_ACTIVE=1) AS total_partis,
+// COUNT(pa.ID_PARTICIPANT) + (SELECT COUNT(pp.ID_PARTIE_POLITIQUE) FROM partie_politiques pp WHERE pp.IS_ACTIVE=1 ) AS total_candidats
+// FROM 
+// postes p
+// LEFT JOIN 
+// participants pa ON p.ID_POSTE = pa.ID_POSTE WHERE 1 AND pa.IS_CANDIDAT=1 AND pa.IS_ACTIVE=1 " .$poste."  
+// GROUP BY 
+// p.ID_POSTE, p.DESCRIPTION");
+
+$immatricula=$this->Model->getRequete("SELECT 
+    p.ID_POSTE,
+    p.DESCRIPTION,
+    COUNT(pa.ID_PARTICIPANT) AS candidats,
+    (SELECT COUNT(pp.ID_PARTIE_POLITIQUE) FROM partie_politiques pp WHERE pp.IS_ACTIVE = 1) AS total_partis,
+    COUNT(pa.ID_PARTICIPANT) + (SELECT COUNT(pp.ID_PARTIE_POLITIQUE) FROM partie_politiques pp WHERE pp.IS_ACTIVE = 1) AS total_candidats
+FROM 
+    postes p
+LEFT JOIN 
+    participants pa ON p.ID_POSTE = pa.ID_POSTE AND pa.IS_CANDIDAT = 1 AND pa.IS_ACTIVE = 1 
+GROUP BY 
+    p.ID_POSTE, p.DESCRIPTION;");
 
 $immatricula_categorie=" ";
 $immatricula_categorie_monta=" ";
@@ -314,7 +399,7 @@ $immatricula_categorie_total_monta=0;
  
  foreach ($immatricula as  $value) {
       
-      
+      if($value['ID_POSTE']==4){
         $key_id1=($value['ID_POSTE']>0) ? $value['ID_POSTE'] : "0" ;
         $monta=($value['candidats']>0) ? $value['candidats'] : "0" ;
         $nom=(!empty($value['DESCRIPTION'])) ? $value['DESCRIPTION'] : "Immatriculation trouvé" ;
@@ -324,6 +409,20 @@ $immatricula_categorie_total_monta=0;
         $immatricula_categorie_monta.="{name:'".str_replace("'","\'", $nom)."', y:". $monta.",key:'". $key_id1."'},";
         $immatricula_categorie.="{name:'".str_replace("'","\'", $nom)."', y:". $nbre.",key:'". $key_id1."'},";
         $immatricula_categorie_total=$immatricula_categorie_total+$value['candidats'];
+
+      }
+      else{
+        $key_id1=($value['ID_POSTE']>0) ? $value['ID_POSTE'] : "0" ;
+        $monta=($value['total_candidats']>0) ? $value['total_candidats'] : "0" ;
+        $nom=(!empty($value['DESCRIPTION'])) ? $value['DESCRIPTION'] : "Immatriculation trouvé" ;
+        $nbre=($value['total_candidats']>0) ? $value['total_candidats'] : "0" ;
+
+
+        $immatricula_categorie_monta.="{name:'".str_replace("'","\'", $nom)."', y:". $monta.",key:'". $key_id1."'},";
+        $immatricula_categorie.="{name:'".str_replace("'","\'", $nom)."', y:". $nbre.",key:'". $key_id1."'},";
+        $immatricula_categorie_total=$immatricula_categorie_total+$value['total_candidats'];
+      }
+       
  }
    
 
@@ -351,66 +450,7 @@ $immatricula_categorie_total_monta=0;
             cursor: 'pointer',
             depth: 35,
        cursor:'pointer',
-             point:{
-                events: {
- click: function()
-{
-$(\"#titre1\").html(\"Electeurs qui ont voté pour   \"+this.name);
-$(\"#myModal1\").modal();
-var row_count ='1000000';
-$(\"#mytable1\").DataTable({
-\"processing\":true,
-\"serverSide\":true,
-\"bDestroy\": true,
-\"oreder\":[],
-\"ajax\":{
-url:\"".base_url('dashboard/Dashboard_vote/detail1')."\",
-type:\"POST\",
-data:{
-key:this.key, 
-}
-},
-lengthMenu: [[10,50, 100, row_count], [10,50, 100, \"All\"]],
-pageLength: 10,
-\"columnDefs\":[{
-\"targets\":[],
-\"orderable\":false
-}],
-dom: 'Bfrtlip',
-buttons: [
-'excel', 'print','pdf'
-],
-language: {
-\"sProcessing\":     \"Traitement en cours...\",
-\"sSearch\":         \"Rechercher&nbsp;:\",
-\"sLengthMenu\":     \"Afficher _MENU_ &eacute;l&eacute;ments\",
-\"sInfo\":           \"Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments\",
-\"sInfoEmpty\":      \"Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment\",
-\"sInfoFiltered\":   \"(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)\",
- \"sInfoPostFix\":    \"\",
-\"sLoadingRecords\": \"Chargement en cours...\",
-\"sZeroRecords\":    \"Aucun &eacute;l&eacute;ment &agrave; afficher\",
-\"sEmptyTable\":     \"Aucune donn&eacute;e disponible dans le tableau\",
-\"oPaginate\": {
-\"sFirst\":      \"Premier\",
-\"sPrevious\":   \"Pr&eacute;c&eacute;dent\",
-\"sNext\":       \"Suivant\",
-\"sLast\":       \"Dernier\"
-},
- \"oAria\": {
-\"sSortAscending\":  \": activer pour trier la colonne par ordre croissant\",
- \"sSortDescending\": \": activer pour trier la colonne par ordre d&eacute;croissant\"
-}
-}
-                              
-});
-
-
-                           
-
-                   }
-               }
-           },
+             
          showInLegend: false
      }
  },
@@ -429,6 +469,8 @@ language: {
 </script>
      ";
 
+
+     //PARTICIPAMT
  $rapp2="<script type=\"text/javascript\">
     Highcharts.chart('container2', {
    
@@ -566,6 +608,7 @@ language: {
 </script>
      ";
 
+//poste
      $rapp3="<script type=\"text/javascript\">
     Highcharts.chart('container3', {
    
@@ -692,192 +735,12 @@ language: {
 });
 </script>
      "; 
-     //  {
-    //     color: 'green',  
-    //     name:'Montant : (".number_format($immatricula_categorie_total_monta,0,',',' ')." FBU)',
-    //     data: [".$immatricula_categorie_monta."]
-    // },
-
-//     $rapp4="<script type=\"text/javascript\">
-//     Highcharts.chart('container4', {
-//     chart: {
-//         type: 'spline'
-//     },
-
-//     legend: {
-//         symbolWidth: 40
-//     },
-
-//     title: {
-//         text: '<b>Contrôle des permis de conduire </b>  du ".date('d-m-Y')." '
-//     },
-
-//     subtitle: {
-//         text: ''
-//     },
-
-//     yAxis: {
-//         title: {
-//             text: ' '
-//         },
-//         accessibility: {
-//             description: ''
-//         }
-//     },
-
-//     xAxis: {
-//         title: {
-//             text: ''
-//         },
-//         accessibility: {
-//             description: ''
-//         },
-//                         type: 'category'
-
-//                     },
-
-//     tooltip: {
-//         valueSuffix: ' '
-//     },
-
-//     plotOptions: {
-//         spline: {
-//        cursor:'pointer',
-//                         point:{
-//                             events: {
-//                                  click: function()
-//                                  {
-
-                               
-//                                $(\"#titre\").html(\"Détails \");
-                                  
-//                                    $(\"#myModal\").modal();
-                                 
-
-//                   var row_count ='1000000';
-//                    $(\"#mytable\").DataTable({
-//                         \"processing\":true,
-//                         \"serverSide\":true,
-//                         \"bDestroy\": true,
-//                         \"oreder\":[],
-//                         \"ajax\":{
-//                             url:\"".base_url('dashboard/Dashbord_Controle_Rapide/detail4')."\",
-//                             type:\"POST\",
-//                             data:{
-//                              key:this.key, 
-//                                  key1:this.key1,
-//                                 mois:$('#mois').val(),
-//                                 jour:$('#jour').val(),
-//                                 heure:$('#heure').val(),
-//                                 CANDIDAT:$('#CANDIDAT').val(),
-//                                  ELECTEUR:$('#ELECTEUR').val(),
-//                                   IS_PAID:$('#IS_PAID').val(),
-//                                   ID_CATEGORIE:$('#ID_CATEGORIE').val()
-                                  
-//                                 }
-//                         },
-//                         lengthMenu: [[10,50, 100, row_count], [10,50, 100, \"All\"]],
-//                     pageLength: 10,
-//                             \"columnDefs\":[{
-//                              \"targets\":[],
-//                              \"orderable\":false
-//                                }],
-
-//                          dom: 'Bfrtlip',
-//                          buttons: [
-//                            'excel', 'print','pdf'
-//                             ],
-//                        language: {
-//                                 \"sProcessing\":     \"Traitement en cours...\",
-//                                 \"sSearch\":         \"Rechercher&nbsp;:\",
-//                                 \"sLengthMenu\":     \"Afficher _MENU_ &eacute;l&eacute;ments\",
-//                                 \"sInfo\":           \"Affichage de l'&eacute;l&eacute;ment _START_ &agrave; _END_ sur _TOTAL_ &eacute;l&eacute;ments\",
-//                                 \"sInfoEmpty\":      \"Affichage de l'&eacute;l&eacute;ment 0 &agrave; 0 sur 0 &eacute;l&eacute;ment\",
-//                                 \"sInfoFiltered\":   \"(filtr&eacute; de _MAX_ &eacute;l&eacute;ments au total)\",
-//                                 \"sInfoPostFix\":    \"\",
-//                                 \"sLoadingRecords\": \"Chargement en cours...\",
-//                                 \"sZeroRecords\":    \"Aucun &eacute;l&eacute;ment &agrave; afficher\",
-//                                 \"sEmptyTable\":     \"Aucune donn&eacute;e disponible dans le tableau\",
-//                                 \"oPaginate\": {
-//                                   \"sFirst\":      \"Premier\",
-//                                   \"sPrevious\":   \"Pr&eacute;c&eacute;dent\",
-//                                   \"sNext\":       \"Suivant\",
-//                                   \"sLast\":       \"Dernier\"
-//                                 },
-//                                 \"oAria\": {
-//                                   \"sSortAscending\":  \": activer pour trier la colonne par ordre croissant\",
-//                                   \"sSortDescending\": \": activer pour trier la colonne par ordre d&eacute;croissant\"
-//                                 }
-//                             }
-                              
-//                     });
-
-//                               }
-//                            }
-//                         },
-//            dataLabels: {
-//               enabled: true,
-//                format: '{point.y:,f} '
-//             },
-//             showInLegend: true
-//         }
-//     }, 
-//  credits: {
-//               enabled: true,
-//               href: \"\",
-//               text: \"Développé par Claudine\"
-//       },
-
-// series: [
-
-// {
-//     name: 'Nombre des permis(".number_format($permis_categorie_total,0,',',' ')." )', 
-//     data: [".$permis_categorie."],
-//     dashStyle: 'DashDot',
-//     color: \"purple\"
-// },
-
-// {
-//     name: 'Montant (".number_format($permis_categorie_total_monta,0,',',' ')." FBU)',
-//     data: [".$permis_categorie_monta."],
-//     dashStyle: 'DashDot',
-//     color: \"green\"
-// },
-
-// ],
-
-//     responsive: {
-//         rules: [{
-//             condition: {
-//                 maxWidth: 550
-//             },
-//             chartOptions: {
-//                 chart: {
-//                     spacingLeft: 3,
-//                     spacingRight: 3
-//                 },
-//                 legend: {
-//                     itemWidth: 150
-//                 },
-//                 xAxis: {
-//                     type: 'category',
-//                     title: ''
-//                 },
-//                 yAxis: {
-//                     visible: false
-//                 }
-//             }
-//         }]
-//     }
-// });
-  
-
-//   </script>";
 
 echo json_encode(array('rapp1'=>$rapp1,'rapp2'=>$rapp2,'rapp3'=>$rapp3));
+// echo json_encode(array('rapp1'=>$rapp1));
 
-// echo json_encode(array('rapp'=>$rapp,'rapp0'=>$rapp0,'rapp1'=>$rapp1,'rapp2'=>$rapp2,'rapp3'=>$rapp3,'rapp4'=>$rapp4,'select_month'=>$mois_select,'selectjour'=>$selectjour));
-    }
+
+ }
 
 
 }

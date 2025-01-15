@@ -70,15 +70,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 | The $query_builder variables lets you determine whether or not to load
 | the query builder class.
 */
-$active_group = 'default';
+$active_group = 'first_db';
 $query_builder = TRUE;
 
-$db['default'] = array(
+$db['first_db'] = array(
 	'dsn'	=> '',
 	'hostname' => 'localhost',
 	'username' => 'root',
-	'password' => '',
-	// 'database' => 'digital_psr',
+	'password' => 'root',
 	'database' => 'vote_electronique',
 	'dbdriver' => 'mysqli',
 	'dbprefix' => '',
@@ -95,3 +94,25 @@ $db['default'] = array(
 	'failover' => array(),
 	'save_queries' => TRUE
 );
+$db['second_db'] = array(
+	'dsn'	=> '',
+	'hostname' => 'localhost',
+	'username' => 'electeur',
+	'password' => 'electeur',
+	'database' => 'vote_electronique',
+	'dbdriver' => 'mysqli',
+	'dbprefix' => '',
+	'pconnect' => FALSE,
+	'db_debug' => (ENVIRONMENT !== 'production'),
+	'cache_on' => FALSE,
+	'cachedir' => '',
+	'char_set' => 'utf8',
+	'dbcollat' => 'utf8_general_ci',
+	'swap_pre' => '',
+	'encrypt' => FALSE,
+	'compress' => FALSE,
+	'stricton' => FALSE,
+	'failover' => array(),
+	'save_queries' => TRUE
+);
+

@@ -31,7 +31,7 @@ class  Partie_politique extends CI_Controller
 	{
 
 		$i = 1;
-		$query_principal = 'SELECT ID_PARTIE_POLITIQUE , DESCRIPTION FROM partie_politiques WHERE 1';
+		$query_principal = 'SELECT * FROM partie_politiques WHERE 1';
 		$var_search = !empty($_POST['search']['value']) ? $_POST['search']['value'] : null;
 		$var_search=str_replace("'", "\'", $var_search);
 		$limit = 'LIMIT 0,10';
@@ -88,8 +88,12 @@ class  Partie_politique extends CI_Controller
 			</div>";
 			$sub_array = array();
 			$u=++$u;
+			$source = !empty($row->PHOTO) ? $row->PHOTO : "https://app.mediabox.bi/wasiliEate/uploads/personne.png";
 			$sub_array[]=$u;
-			$sub_array[] = $row->DESCRIPTION;
+			$sub_array[] = '<table> <tbody><tr><td><a href="' . $source . '" target="_blank" ><img alt="Avtar" style="border-radius:50%;width:30px;height:30px" src="' . $source . '"></a></td><td>' . $row->DESIGNATION .'</td></tr></tbody></table></a>';
+			$sub_array[] = '<table> <tbody><tr><td>' . $row->TELEPHONE . ' ' . $row->EMAIL . '</td></tr></tbody></table></a>';
+			 $sub_array[] = $row->DESCRIPTION;
+			 $sub_array[] = $this->get_icon($row->IS_ACTIVE,$row);
 			$sub_array[] = $option;
 			$data[] = $sub_array;
 		}
@@ -101,7 +105,21 @@ class  Partie_politique extends CI_Controller
 		);
 		echo json_encode($output);
 	}
-
+	function get_icon($statut, $row)
+	{
+	  $html = ($statut == 1) ? "<a class='btn btn-success btn-sm' id='".$row->DESCRIPTION."'  title='".$row->DESIGNATION."'  onclick='desactiver(".$row->ID_PARTIE_POLITIQUE .",this.title,this.id)' style='float:right' ><span class = 'fa fa-check'></span></a>" : "<a class = 'btn btn-danger btn-sm' id='".$row->DESCRIPTION."'  title='".$row->DESIGNATION."'  onclick='activer(".$row->ID_PARTIE_POLITIQUE.",this.title,this.id)' style='float:right'><span class = 'fa fa-ban' ></span></a>" ;
+	  return $html;
+	}
+	function activer($id)
+    {
+          $this->Modele->update('partie_politiques',array('ID_PARTIE_POLITIQUE'=>$id),array('IS_ACTIVE'=>1));
+       print_r(json_encode(1));
+    }
+    function desactiver($id)
+    {
+          $this->Modele->update('partie_politiques',array('ID_PARTIE_POLITIQUE'=>$id),array('IS_ACTIVE'=>0));
+       print_r(json_encode(1));
+    }
 	function ajouter()
 	{
 		$data['title'] = 'Nouveau parti politique';
@@ -120,13 +138,64 @@ class  Partie_politique extends CI_Controller
 	function add()
 	{
 		$this->form_validation->set_rules('DESCRIPTION', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('TELEPHONE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('EMAIL', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		
 		if ($this->form_validation->run() == FALSE) {
 			$this->ajouter();
 		} else {
+            
+			$file = $_FILES['PHOTO'];
+			PRINT
+			$path = './uploads/Candidats/';
+			if (!is_dir(FCPATH . '/uploads/Candidats/')) {
+				mkdir(FCPATH . '/uploads/Candidats/', 0777, TRUE);
+			}
 
+			$thepath = base_url() . 'uploads/Candidats/';
+			$config['upload_path'] = './uploads/Candidats/';
+			$photonames = date('ymdHisa');
+			$config['file_name'] = $photonames;
+			$config['allowed_types'] = '*';
+			$this->upload->initialize($config);
+			$this->upload->do_upload("PHOTO");
+			$info = $this->upload->data();
+
+			if ($file == '') {
+				$pathfile = base_url() . 'uploads/sevtb.png';
+			} else {
+				$pathfile = base_url() . '/uploads/Candidats/' . $photonames . $info['file_ext'];
+			}
+
+
+			$camerasImage = $this->input->post('ImageLink');
+
+			if (!empty($camerasImage)) {
+
+				$dir = FCPATH.'/uploads/cameraImageCeni/';
+			      if (!is_dir(FCPATH . '/uploads/cameraImageCeni/')) {
+				  mkdir(FCPATH . '/uploads/cameraImageCeni/', 0777, TRUE);
+			    }
+
+                $photonames = date('ymdHisa');
+                $pathfile = base_url() . 'uploads/cameraImageCeni/' . $photonames .".png";
+			    $pathfiless = FCPATH . '/uploads/cameraImageCeni/' . $photonames .".png";
+			    $file_name = $photonames .".png";
+
+			    $img = $this->input->post('ImageLink'); // Your data 'data:image/png;base64,AAAFBfj42Pj4';
+                $img = str_replace('data:image/png;base64,', '', $img);
+                $img = str_replace(' ', '+', $img);
+                $data = base64_decode($img);
+                file_put_contents($pathfiless, $data);
+
+				//echo "<img src='".$path."' >";
+				
+			}
 			$data_insert = array(
-
 				'DESCRIPTION' => $this->input->post('DESCRIPTION'),
+				'TELEPHONE' => $this->input->post('TELEPHONE'),
+				'EMAIL' => $this->input->post('EMAIL'),
+				'PHOTO' => $pathfile,
 			);
 			$table = 'partie_politiques';
 			$this->Modele->create($table, $data_insert);
@@ -146,6 +215,9 @@ class  Partie_politique extends CI_Controller
 	function update()
 	{
 		$this->form_validation->set_rules('DESCRIPTION', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('TELEPHONE', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		$this->form_validation->set_rules('EMAIL', '', 'trim|required|callback_validate_name', array('required' => '<font style="color:red;size:2px;">Le champ est Obligatoire</font>'));
+		
 		$id = $this->input->post('ID_PARTIE_POLITIQUE ');
 
 		if ($this->form_validation->run() == FALSE) {
@@ -153,9 +225,50 @@ class  Partie_politique extends CI_Controller
 		} else {
 			$id = $this->input->post('ID_PARTIE_POLITIQUE');
 
-			$data = array(
-				'DESCRIPTION' => $this->input->post('DESCRIPTION'),
-			);
+
+
+			$file = $_FILES['PHOTO'];
+			$path = './uploads/Candidats/';
+			if (!is_dir(FCPATH . '/uploads/Candidats/')) {
+				mkdir(FCPATH . '/uploads/Candidats/', 0777, TRUE);
+			}
+
+			$thepath = base_url() . 'uploads/Candidats/';
+			$config['upload_path'] = './uploads/Candidats/';
+			$photonames = date('ymdHisa');
+			$config['file_name'] = $photonames;
+			$config['allowed_types'] = '*';
+			$this->upload->initialize($config);
+			$this->upload->do_upload("PHOTO");
+			$info = $this->upload->data();
+
+			if ($file == '') {
+				$pathfile = base_url() . 'uploads/sevtb.png';
+			} else {
+				$pathfile = base_url() . '/uploads/Candidats/' . $photonames . $info['file_ext'];
+			}
+
+
+			// $id = $this->input->post('ID_PARTICIPANT');
+			if(!empty($_FILES['PHOTO']['name'])) {
+				$data = array(
+					'DESCRIPTION' => $this->input->post('DESCRIPTION'),
+					'TELEPHONE' => $this->input->post('TELEPHONE'),
+					'EMAIL' => $this->input->post('EMAIL'),
+					'PHOTO' => $pathfile,
+				);
+			}
+			else{
+				$data = array(
+					'DESCRIPTION' => $this->input->post('DESCRIPTION'),
+					'TELEPHONE' => $this->input->post('TELEPHONE'),
+					'EMAIL' => $this->input->post('EMAIL'),
+					// 'PHOTO' => $pathfile,
+				);
+			}
+
+			
+			
 			$this->Modele->update('partie_politiques', array('ID_PARTIE_POLITIQUE ' => $id), $data);
 			$datas['message'] = '<div class="alert alert-success text-center" id="message">La modification du parti politique est faite avec succès</div>';
 			$this->session->set_flashdata($datas);

@@ -132,7 +132,7 @@
                 <div class="col-sm-3" style="float:right;">
                   <a href="<?=base_url('donnees/Candidats/ajouter')?>" style="width: 100px;" class='btn btn-primary btn-sm float-right'>
                     <i class="nav-icon fas fa-plus"></i>
-                    Nouveau
+                    Ajouter
                   </a>
                 </div>
 

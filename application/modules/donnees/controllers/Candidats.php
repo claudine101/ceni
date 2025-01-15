@@ -13,7 +13,8 @@ class  Candidats extends CI_Controller
 		$this->have_droit();
 		$this->load->model('Blockchain_model');
 		$this->load->model('Modele');
-
+		$this->load->model('ModelElecteur'); // Vérifiez que le nom est correct
+		$this->load->library('EAS'); // Charger la bibliothèque
 	}
 
 	public function have_droit()
@@ -137,7 +138,8 @@ class  Candidats extends CI_Controller
 			$sub_array[] = '<table> <tbody><tr><td>' . $row->TELEPHONE . ' ' . $row->EMAIL . '</td></tr></tbody></table></a>';
             $sub_array[] = $row->NUMERO_CNI;
 			$sub_array[] = $this->notifications->ago($row->DATE_NAISSANCE, date('Y-m-d'));
-            $sub_array[] = $row->ID_SEXE;
+            $sub_array[] = ($row->ID_SEXE==1 )?"Homme":"Femme";
+
             $sub_array[] = $row->poste;
             $sub_array[] = $row->parti;
 			$sub_array[] = $this->get_icon($row->IS_ACTIVE,$row);
@@ -210,9 +212,18 @@ class  Candidats extends CI_Controller
 		
         if ($this->form_validation->run() == FALSE) {
 			$this->ajouter();
-		} else {
+		} 
+		else {
 
-			
+			$card = $this->Model->getRequeteOne('SELECT * FROM participants WHERE  CARTE_NUMERIQUE="' . $this->input->post('receivedUID') . '"');
+
+			$message = "";
+			if (!empty($card)) {
+				$datas['message'] = '<div class="alert alert-success text-center" id="message">Cette carte est déjà utilisée. Veuillez utiliser une autre carte</div>';
+			 $this->session->set_flashdata($datas);
+			$this->ajouter();
+			}
+			else{
 			$file = $_FILES['PHOTO'];
 			$path = './uploads/Candidats/';
 			if (!is_dir(FCPATH . '/uploads/Candidats/')) {
@@ -258,14 +269,6 @@ class  Candidats extends CI_Controller
 				//echo "<img src='".$path."' >";
 				
 			}
-			$data_users = array(
-				'USERNAME' => $this->input->post('EMAIL'),
-				'PASSWORD' => md5($this->input->post('TELEPHONE')),
-				'ID_PROFIL' => 2,
-			);
-			$tableusers = 'utilisateurs';
-
-			$idUsers = $this->Modele->insert_last_id($tableusers, $data_users);
 
 			$data_insert = array(
 				'NOM' => $this->input->post('NOM'),
@@ -280,7 +283,10 @@ class  Candidats extends CI_Controller
 				'ID_PARTIE_POLITIQUE' => $this->input->post('ID_PARTIE_POLITIQUE'),
 				'ID_COLLINE' => $this->input->post('ID_COLLINE'),
 				'IS_CANDIDAT'=>1,
-				'ID_UTILISATEUR'=>$idUsers
+				'CARTE_NUMERIQUE'=>$this->input->post('receivedUIDCand'),
+				'EMPREINTE'=>$this->input->post('PASSWORDCAND'),
+				'NO_EMP'=>$this->input->post('FINGERCAND')
+				// 'ID_UTILISATEUR'=>$idUsers
 			);
            
 
@@ -289,6 +295,7 @@ class  Candidats extends CI_Controller
 			$data['message'] = '<div class="alert alert-success text-center" id="message">' . "L'ajout se faite avec succès" . '</div>';
 			$this->session->set_flashdata($data);
 			redirect(base_url('donnees/Candidats/'));
+		}
 		}
 	}
 
@@ -430,10 +437,13 @@ class  Candidats extends CI_Controller
         
             $candidate_id = $id;
             $voter_id = $this->session->userdata('ID_UTILISATEUR');
-
+			$sessionVote = $this->ModelElecteur->getRequeteOne('SELECT * FROM session_votes WHERE  IS_CURRENT=1');
 			$data_insert = array(
-				'ID_ELECTEUR' => $voter_id,
+
+				'ID_UTILISATEUR' => $voter_id,
 				'ID_CANDIDAT' =>  $candidate_id,
+				'ID_SESSIN_VOTE' => $sessionVote['ID_SESSIN_VOTE'],
+
 			);
 			$table = 'votes';
 			// $this->Modele->create($table, $data_insert);

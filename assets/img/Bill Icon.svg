@@ -1,0 +1,7 @@
+<svg id="Bill_Icon" data-name="Bill Icon" xmlns="http://www.w3.org/2000/svg" width="46.686" height="25.099" viewBox="0 0 46.686 25.099">
+  <g id="Group_287" data-name="Group 287" transform="translate(0 0)">
+    <path id="Path_28575" data-name="Path 28575" d="M45.21,135.219H1.475a1.416,1.416,0,0,0-1.037.438A1.416,1.416,0,0,0,0,136.694v22.149a1.417,1.417,0,0,0,.438,1.037,1.416,1.416,0,0,0,1.037.438H45.211a1.495,1.495,0,0,0,1.475-1.475v-22.15a1.494,1.494,0,0,0-1.475-1.474Zm-1.474,16.25a5.9,5.9,0,0,0-5.9,5.9H8.848A5.684,5.684,0,0,0,7.12,153.2a5.683,5.683,0,0,0-4.171-1.728v-7.4a5.683,5.683,0,0,0,4.171-1.728,5.682,5.682,0,0,0,1.728-4.171H37.837a5.9,5.9,0,0,0,5.9,5.9Z" transform="translate(0 -135.219)" fill="#f15f43"/>
+  </g>
+  <ellipse id="Ellipse_1506" data-name="Ellipse 1506" cx="6.645" cy="6.645" rx="6.645" ry="6.645" transform="translate(17.097 5.765) rotate(1)" fill="#f15f43"/>
+  <text id="_1" data-name="1" transform="translate(21.175 14.441) rotate(1)" fill="#fff" font-size="7" font-family="SegoeUI-Bold, Segoe UI" font-weight="700"><tspan x="0" y="0">1</tspan></text>
+</svg>

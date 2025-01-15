@@ -30,9 +30,9 @@
 
     <!-- Main Sidebar Container -->
     <?php include VIEWPATH.'templates/sidebar.php'; ?>
- <script src="https://code.highcharts.com/highcharts.js"></script>
+ <!-- <script src="https://code.highcharts.com/highcharts.js"></script>
 <script src="https://code.highcharts.com/highcharts-more.js"></script>
-<script src="https://code.highcharts.com/modules/accessibility.js"></script>
+<script src="https://code.highcharts.com/modules/accessibility.js"></script> -->
 
     <!-- Content Wrapper. Contains page content -->
     <div class="content-wrapper">
@@ -133,12 +133,10 @@ if ($value['ID_POSTE'] == set_value('ID_POSTE'))
                   <thead>
                       <th>#</th>
                       <th>CANDIDAT</th>
-                      <th>CONTACT</th>
-                      <th>CNI</th>
-                      <th>SEXE</th>
-                      <th>DATE DE NAISSANCE</th>
-                      <th>LIEU DE NAISSANCE</th>
-                      <th>PARTIE POLITIQUE</th>
+                      <th>DESCRIPTION</th>
+                      <th>TELEPHONE</th>
+                      <th>EMAIL</th>
+                      
                   </thead>
                 </table>
               </div>
